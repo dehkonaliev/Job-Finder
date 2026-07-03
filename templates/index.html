@@ -1,0 +1,1060 @@
+
+
+Job board prototype · HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WorkBoard — UI/UX Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#182338;
+    --ink-2:#26334d;
+    --ink-soft:#3c4a68;
+    --paper:#FAFAF7;
+    --card:#FFFFFF;
+    --border:#E3E1D9;
+    --border-soft:#ECEAE2;
+    --amber:#E8A33D;
+    --amber-dark:#C77F1F;
+    --amber-tint:#FBEBD1;
+    --success:#2F8F5B;
+    --success-tint:#E3F2E9;
+    --danger:#C1443C;
+    --danger-tint:#F8E7E5;
+    --blue:#3B5B8C;
+    --blue-tint:#E7ECF4;
+    --slate:#6B7280;
+    --slate-light:#9AA0AC;
+    --cat-it:#3B5B8C;
+    --cat-marketing:#B4562F;
+    --cat-design:#7A5AA8;
+    --cat-sales:#2F8F5B;
+    --cat-ops:#C77F1F;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(24,35,56,0.04), 0 4px 16px rgba(24,35,56,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',Georgia,serif;
+    color:var(--ink);
+    margin:0 0 6px 0;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  ::selection{background:var(--amber-tint);}
+ 
+  /* ---------- Prototype flow bar ---------- */
+  .flowbar{
+    position:sticky; top:0; z-index:200;
+    background:var(--ink);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:2px;
+    padding:0 14px;
+    height:44px;
+    overflow-x:auto;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.02em;
+  }
+  .flowbar .fb-label{color:var(--amber);font-weight:600;padding-right:12px;white-space:nowrap;text-transform:uppercase;font-size:10.5px;letter-spacing:.08em;}
+  .flowbar button{
+    background:transparent;border:1px solid transparent;color:#c9d0de;
+    padding:6px 10px; border-radius:6px; cursor:pointer; white-space:nowrap;
+    font-family:inherit; font-size:11.5px;
+  }
+  .flowbar button:hover{background:rgba(255,255,255,0.08);color:#fff;}
+  .flowbar button.active{background:var(--amber);color:#1B2A4A;font-weight:600;}
+  .flowbar .sep{color:#4a5670;padding:0 2px;}
+ 
+  .page{display:none;min-height:calc(100vh - 44px);}
+  .page.visible{display:block;}
+ 
+  /* ---------- Buttons / inputs ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 20px; border-radius:8px; border:1px solid transparent;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
+    cursor:pointer; transition:transform .05s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--amber); color:#1B2A4A;}
+  .btn-primary:hover{background:var(--amber-dark); color:#fff;}
+  .btn-dark{background:var(--ink); color:#fff;}
+  .btn-dark:hover{background:var(--ink-2);}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--border);}
+  .btn-ghost:hover{border-color:var(--ink); }
+  .btn-danger-ghost{background:transparent;color:var(--danger);border-color:var(--danger-tint);}
+  .btn-danger-ghost:hover{background:var(--danger-tint);}
+  .btn-sm{padding:7px 13px; font-size:12.5px; border-radius:7px;}
+  .btn-block{width:100%;}
+ 
+  label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em;}
+  input[type=text], input[type=email], input[type=password], input[type=number], input[type=date], input[type=time], select, textarea{
+    width:100%; padding:11px 13px; border:1px solid var(--border); border-radius:8px;
+    font-family:'Inter',sans-serif; font-size:14.5px; color:var(--ink); background:#fff;
+  }
+  textarea{resize:vertical; font-family:'Inter',sans-serif;}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--amber); outline-offset:1px; border-color:var(--amber);}
+  .field{margin-bottom:16px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .hint{font-size:12px; color:var(--slate); margin-top:5px;}
+ 
+  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+ 
+  /* ---------- Stamp badge (signature element) ---------- */
+  .stamp{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    text-transform:uppercase; letter-spacing:.06em;
+    padding:5px 10px; border-radius:3px;
+    border:1.5px dashed currentColor;
+    transform:rotate(-2deg);
+  }
+  .stamp::before{content:'●'; font-size:8px;}
+  .stamp-pending{color:var(--slate); background:#F3F3F1;}
+  .stamp-viewed{color:var(--blue); background:var(--blue-tint);}
+  .stamp-interview{color:var(--amber-dark); background:var(--amber-tint);}
+  .stamp-accepted{color:var(--success); background:var(--success-tint);}
+  .stamp-rejected{color:var(--danger); background:var(--danger-tint);}
+ 
+  /* category chip */
+  .chip{display:inline-block; font-size:11px; font-weight:600; padding:4px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em;}
+  .chip-it{color:var(--cat-it); background:var(--blue-tint);}
+  .chip-marketing{color:var(--cat-marketing); background:#F6E7DE;}
+  .chip-design{color:var(--cat-design); background:#EFE7F6;}
+  .chip-sales{color:var(--cat-sales); background:var(--success-tint);}
+  .chip-ops{color:var(--cat-ops); background:var(--amber-tint);}
+ 
+  /* =========================================================
+     MARKETING PAGES
+  ==========================================================*/
+  .marketing-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 48px; border-bottom:1px solid var(--border-soft);
+    background:var(--paper);
+  }
+  .logo{font-family:'Fraunces',serif; font-weight:700; font-size:21px; letter-spacing:-0.02em; display:flex; align-items:center; gap:8px;}
+  .logo .dot{width:9px;height:9px;border-radius:2px;background:var(--amber); display:inline-block; transform:rotate(45deg);}
+  .marketing-nav nav{display:flex; gap:28px; font-size:14px; font-weight:500; color:var(--ink-soft);}
+  .marketing-nav .actions{display:flex; gap:10px;}
+ 
+  .hero{
+    padding:88px 48px 70px; max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:1.1fr .9fr; gap:50px; align-items:center;
+  }
+  .hero .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--amber-dark); text-transform:uppercase; letter-spacing:.1em; margin-bottom:16px; font-weight:600;}
+  .hero h1{font-size:52px; line-height:1.05; font-weight:600; max-width:560px;}
+  .hero h1 em{font-style:italic; color:var(--amber-dark);}
+  .hero p{font-size:16.5px; color:var(--slate); max-width:460px; margin:18px 0 30px;}
+  .hero-actions{display:flex; gap:12px;}
+ 
+  .hero-panel{
+    background:var(--ink); border-radius:16px; padding:26px; position:relative; color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .hero-panel .index-card{background:#fff; border-radius:10px; padding:18px; color:var(--ink); margin-bottom:12px; position:relative;}
+  .hero-panel .index-card:last-child{margin-bottom:0;}
+  .hero-panel .index-card .punch{position:absolute; top:12px; left:12px; width:8px; height:8px; border-radius:50%; background:var(--paper); border:1.5px solid var(--border);}
+  .hero-panel .index-card h4{font-size:15px; margin-bottom:2px; padding-left:16px;}
+  .hero-panel .index-card .meta{font-size:12px; color:var(--slate); padding-left:16px;}
+ 
+  .stats-strip{
+    display:flex; justify-content:center; gap:64px; padding:36px 48px; border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft);
+  }
+  .stat{text-align:center;}
+  .stat .num{font-family:'Fraunces',serif; font-size:34px; font-weight:600; color:var(--ink);}
+  .stat .lbl{font-size:12px; color:var(--slate); text-transform:uppercase; letter-spacing:.05em; margin-top:2px;}
+ 
+  .how-section{max-width:1180px; margin:0 auto; padding:80px 48px;}
+  .how-section h2{font-size:30px; text-align:center; margin-bottom:8px;}
+  .how-sub{text-align:center; color:var(--slate); margin-bottom:48px;}
+  .how-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+  .how-card{padding:26px; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); position:relative;}
+  .how-card .step-tab{position:absolute; top:-12px; left:20px; background:var(--amber); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; padding:3px 9px; border-radius:4px;}
+  .how-card h4{margin-top:8px; font-size:17px;}
+  .how-card p{color:var(--slate); font-size:14px; margin-top:6px;}
+ 
+  .footer{padding:36px 48px; border-top:1px solid var(--border-soft); display:flex; justify-content:space-between; color:var(--slate); font-size:13px;}
+ 
+  /* =========================================================
+     AUTH PAGES
+  ==========================================================*/
+  .auth-wrap{min-height:calc(100vh - 44px); display:flex;}
+  .auth-side{
+    flex:1; background:var(--ink); color:#fff; padding:60px; display:flex; flex-direction:column; justify-content:space-between;
+    background-image: radial-gradient(circle at 80% 20%, rgba(232,163,61,0.14), transparent 45%);
+  }
+  .auth-side blockquote{font-family:'Fraunces',serif; font-size:24px; line-height:1.35; max-width:420px; font-weight:500;}
+  .auth-side .cite{font-size:13px; color:#aeb8cc; margin-top:16px;}
+  .auth-form-col{flex:1; display:flex; align-items:center; justify-content:center; padding:40px;}
+  .auth-box{width:100%; max-width:400px;}
+  .role-toggle{display:flex; border:1px solid var(--border); border-radius:9px; overflow:hidden; margin-bottom:22px;}
+  .role-toggle button{flex:1; padding:12px; background:#fff; border:none; font-weight:600; font-size:13.5px; cursor:pointer; color:var(--slate);}
+  .role-toggle button.active{background:var(--ink); color:#fff;}
+  .auth-switch{text-align:center; margin-top:18px; font-size:13.5px; color:var(--slate);}
+  .auth-switch a{color:var(--amber-dark); font-weight:600; cursor:pointer;}
+ 
+  /* =========================================================
+     APP SHELL (dashboards)
+  ==========================================================*/
+  .shell{display:flex; min-height:calc(100vh - 44px);}
+  .sidebar{
+    width:230px; background:var(--ink); color:#dbe0ec; padding:22px 14px; display:flex; flex-direction:column; flex-shrink:0;
+  }
+  .sidebar .logo{color:#fff; padding:0 10px 22px; font-size:19px;}
+  .side-role{font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--amber); padding:0 10px 14px; font-weight:600;}
+  .side-link{
+    display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:8px; font-size:14px; font-weight:500;
+    color:#c3c9d8; cursor:pointer; margin-bottom:2px;
+  }
+  .side-link .ic{width:17px; text-align:center; font-size:14px;}
+  .side-link:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .side-link.active{background:var(--amber); color:var(--ink); font-weight:700;}
+  .sidebar-bottom{margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,0.12);}
+  .user-chip{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px;}
+  .avatar{width:32px; height:32px; border-radius:50%; background:var(--amber); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:'Fraunces',serif; flex-shrink:0;}
+  .user-chip .u-name{font-size:13.5px; font-weight:600; color:#fff;}
+  .user-chip .u-mail{font-size:11.5px; color:#9aa4ba;}
+  .switch-role-btn{width:100%; margin-top:10px; font-size:12px; padding:8px; background:transparent; border:1px solid rgba(255,255,255,0.18); color:#c3c9d8; border-radius:7px; cursor:pointer;}
+  .switch-role-btn:hover{border-color:var(--amber); color:var(--amber);}
+ 
+  .main{flex:1; padding:34px 42px; max-width:1180px;}
+  .page-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:26px;}
+  .page-head h2{font-size:26px;}
+  .page-head .sub{color:var(--slate); font-size:14px; margin-top:2px;}
+  .breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--slate-light); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
+ 
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .kpi{padding:20px; }
+  .kpi .n{font-family:'Fraunces',serif; font-size:30px; font-weight:600;}
+  .kpi .l{font-size:12.5px; color:var(--slate); text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+  .kpi .delta{font-size:11.5px; margin-top:8px; font-weight:600;}
+  .delta.up{color:var(--success);} .delta.flat{color:var(--slate);}
+ 
+  .section-title{display:flex; justify-content:space-between; align-items:center; margin:30px 0 14px;}
+  .section-title h3{font-size:17px;}
+  .link-more{font-size:13px; font-weight:600; color:var(--blue); cursor:pointer;}
+ 
+  /* index-card job listing */
+  .job-card{
+    display:flex; gap:16px; padding:18px 18px 18px 20px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:12px; position:relative; box-shadow:var(--shadow); cursor:pointer; transition:border-color .12s;
+  }
+  .job-card:hover{border-color:var(--ink-soft);}
+  .job-card .tab{position:absolute; left:0; top:16px; bottom:16px; width:4px; border-radius:0 3px 3px 0;}
+  .tab-it{background:var(--cat-it);} .tab-marketing{background:var(--cat-marketing);} .tab-design{background:var(--cat-design);} .tab-sales{background:var(--cat-sales);} .tab-ops{background:var(--cat-ops);}
+  .job-card .punch{position:absolute; top:16px; right:16px; width:8px; height:8px; border-radius:50%; background:var(--paper); border:1.5px solid var(--border);}
+  .job-card-body{flex:1;}
+  .job-card-body h4{font-size:16px; margin-bottom:4px;}
+  .job-card-body .company{font-size:13px; color:var(--slate); margin-bottom:8px;}
+  .job-card-meta{display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-size:12.5px; color:var(--slate);}
+  .job-card-meta .sep{color:var(--border);}
+  .job-card-right{display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:10px; min-width:110px;}
+  .salary{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--ink);}
+ 
+  .filters{padding:18px; margin-bottom:0;}
+  .filters h4{font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:14px;}
+  .checkline{display:flex; align-items:center; gap:8px; font-size:13.5px; padding:6px 0; color:var(--ink-soft);}
+ 
+  .browse-layout{display:grid; grid-template-columns:230px 1fr; gap:22px; align-items:start;}
+ 
+  table{width:100%; border-collapse:collapse;}
+  th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--slate); padding:10px 14px; border-bottom:1px solid var(--border);}
+  td{padding:14px; border-bottom:1px solid var(--border-soft); font-size:14px; vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .table-card{overflow:hidden;}
+  .row-title{font-weight:600;}
+  .row-sub{font-size:12px; color:var(--slate);}
+ 
+  .progress-track{height:8px; background:var(--border-soft); border-radius:5px; overflow:hidden; margin-top:8px;}
+  .progress-fill{height:100%; background:var(--amber); border-radius:5px;}
+ 
+  .resume-layout{display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:start;}
+  .resume-preview{padding:24px; position:sticky; top:64px;}
+  .resume-preview .rp-head{border-bottom:2px solid var(--ink); padding-bottom:12px; margin-bottom:14px;}
+  .resume-preview h3{font-size:19px;}
+  .resume-preview .role{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--amber-dark); font-weight:600; margin-top:2px;}
+  .rp-block{margin-bottom:16px;}
+  .rp-block .rp-h{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--slate); font-weight:700; margin-bottom:6px;}
+  .rp-block p{font-size:13.5px; color:var(--ink-soft); margin:0; white-space:pre-line;}
+  .skill-pill{display:inline-block; background:var(--amber-tint); color:var(--amber-dark); font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px; margin:0 6px 6px 0;}
+ 
+  .app-row{display:flex; align-items:center; gap:16px; padding:16px 18px;}
+  .app-row .avatar{width:38px;height:38px;font-size:14px;}
+ 
+  .form-card{padding:26px;}
+  .form-section-title{font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--slate); font-weight:700; margin:22px 0 12px; padding-top:16px; border-top:1px solid var(--border-soft);}
+  .form-section-title:first-child{margin-top:0; padding-top:0; border-top:none;}
+ 
+  .toolbar{display:flex; gap:10px; align-items:center; margin-bottom:18px;}
+  .search-box{flex:1; position:relative;}
+  .search-box input{padding-left:36px;}
+  .search-box .si{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--slate-light);}
+ 
+  .empty-state{padding:60px 20px; text-align:center; color:var(--slate);}
+  .empty-state .glyph{font-size:30px; margin-bottom:10px;}
+ 
+  /* modal */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(24,35,56,0.5); z-index:500;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.visible{display:flex;}
+  .modal{background:#fff; border-radius:14px; width:100%; max-width:480px; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;}
+  .modal-close{cursor:pointer; color:var(--slate); font-size:20px; line-height:1;}
+  .modal-foot{display:flex; gap:10px; justify-content:flex-end; margin-top:22px;}
+ 
+  .status-legend{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+ 
+  .job-type-badge{font-size:11px; font-weight:600; padding:3px 9px; border-radius:5px; background:var(--blue-tint); color:var(--blue); text-transform:capitalize;}
+  .job-status-open{color:var(--success); font-weight:600; font-size:12px;}
+  .job-status-closed{color:var(--danger); font-weight:600; font-size:12px;}
+ 
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;}
+    .how-grid{grid-template-columns:1fr;}
+    .browse-layout{grid-template-columns:1fr;}
+    .resume-layout{grid-template-columns:1fr;}
+    .shell{flex-direction:column;}
+    .sidebar{width:100%; flex-direction:row; overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+ 
+<div class="flowbar" id="flowbar">
+  <span class="fb-label">Prototype /</span>
+  <button data-page="landing">Home</button>
+  <span class="sep">/</span>
+  <button data-page="login">Sign in</button>
+  <button data-page="register">Register</button>
+  <span class="sep">/</span>
+  <button data-page="worker-dashboard" data-role="worker">Worker · Dashboard</button>
+  <button data-page="resume-edit" data-role="worker">My Resume</button>
+  <button data-page="jobs-browse" data-role="worker">Browse Jobs</button>
+  <button data-page="job-detail" data-role="worker">Job Detail</button>
+  <button data-page="worker-applications" data-role="worker">My Applications</button>
+  <span class="sep">/</span>
+  <button data-page="employer-dashboard" data-role="employer">Employer · Dashboard</button>
+  <button data-page="company-profile" data-role="employer">Company Profile</button>
+  <button data-page="post-job" data-role="employer">Post a Job</button>
+  <button data-page="manage-jobs" data-role="employer">My Postings</button>
+  <button data-page="applicants" data-role="employer">Applicants</button>
+</div>
+ 
+<!-- ============================================================ LANDING ============================================================ -->
+<section class="page" id="page-landing">
+  <div class="marketing-nav">
+    <div class="logo"><span class="dot"></span> WorkBoard</div>
+    <nav>
+      <span>Find work</span><span>Hire talent</span><span>How it works</span>
+    </nav>
+    <div class="actions">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('login')">Sign in</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('register')">Get started</button>
+    </div>
+  </div>
+ 
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Job Board · Workers &amp; Employers</div>
+      <h1>Where work <em>finds</em> the worker.</h1>
+      <p>Build a resume once, apply anywhere. Post a job in minutes, meet the people who actually fit it. No noise — just applications that matter.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="showPage('register')">Find a job →</button>
+        <button class="btn btn-ghost" onclick="showPage('register')">Hire talent →</button>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="index-card">
+        <div class="punch"></div>
+        <h4>Senior Product Designer</h4>
+        <div class="meta">Northwind Studio · Remote · $95k–120k</div>
+      </div>
+      <div class="index-card">
+        <div class="punch"></div>
+        <h4>Warehouse Operations Lead</h4>
+        <div class="meta">Fenway Logistics · Tashkent · $2,800–3,400/mo</div>
+      </div>
+      <div class="index-card">
+        <div class="punch"></div>
+        <h4>Backend Engineer (Django)</h4>
+        <div class="meta">Alto Systems · Remote · $70k–90k</div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="stats-strip">
+    <div class="stat"><div class="num">12,480</div><div class="lbl">Active resumes</div></div>
+    <div class="stat"><div class="num">3,140</div><div class="lbl">Open positions</div></div>
+    <div class="stat"><div class="num">890</div><div class="lbl">Companies hiring</div></div>
+  </div>
+ 
+  <div class="how-section">
+    <h2>Three steps. No middlemen.</h2>
+    <p class="how-sub">The same flow, whichever side of the desk you're on.</p>
+    <div class="how-grid">
+      <div class="how-card"><span class="step-tab">01</span><h4>Create your account</h4><p>Register as a worker or an employer — one account, one role, no confusion about who you are on the platform.</p></div>
+      <div class="how-card"><span class="step-tab">02</span><h4>Build your profile</h4><p>Workers write one resume they reuse everywhere. Employers set up a company page shown on every posting.</p></div>
+      <div class="how-card"><span class="step-tab">03</span><h4>Apply or hire</h4><p>Workers apply with a click. Employers review applicants, track status, and invite the right ones to interview.</p></div>
+    </div>
+  </div>
+ 
+  <div class="footer">
+    <div>© 2026 WorkBoard — UI/UX prototype for a Django job board</div>
+    <div>Home · Sign in · Register</div>
+  </div>
+</section>
+ 
+<!-- ============================================================ LOGIN ============================================================ -->
+<section class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-side">
+      <div class="logo"><span class="dot"></span> WorkBoard</div>
+      <div>
+        <blockquote>"Posted the role Tuesday, interviewed three people by Thursday. Nothing else moved that fast."</blockquote>
+        <div class="cite">— Employer, Fenway Logistics</div>
+      </div>
+      <div class="hint" style="color:#8891a6;">Design note: <span class="mono" style="color:#c3c9d8;">users</span> table — one login for both roles, split by <span class="mono" style="color:#c3c9d8;">role</span>.</div>
+    </div>
+    <div class="auth-form-col">
+      <div class="auth-box">
+        <h2 style="margin-bottom:4px;">Welcome back</h2>
+        <p class="hint" style="margin-bottom:26px;">Sign in to continue to your dashboard.</p>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="postLogin()">Sign in</button>
+        <div class="auth-switch">Signing in as a demo — <a onclick="quickLogin('worker')">enter as Worker</a> or <a onclick="quickLogin('employer')">enter as Employer</a></div>
+        <div class="auth-switch">No account yet? <a onclick="showPage('register')">Register</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ============================================================ REGISTER ============================================================ -->
+<section class="page" id="page-register">
+  <div class="auth-wrap">
+    <div class="auth-side">
+      <div class="logo"><span class="dot"></span> WorkBoard</div>
+      <div>
+        <blockquote>"I built my resume once. I haven't touched a paper CV since."</blockquote>
+        <div class="cite">— Worker, applied to 6 jobs this month</div>
+      </div>
+      <div class="hint" style="color:#8891a6;">Design note: role picked at registration decides the entire app shell — sidebar, dashboard, and forms differ from here on.</div>
+    </div>
+    <div class="auth-form-col">
+      <div class="auth-box">
+        <h2 style="margin-bottom:4px;">Create your account</h2>
+        <p class="hint" style="margin-bottom:20px;">Choose how you'll use WorkBoard.</p>
+        <div class="role-toggle">
+          <button class="active" id="reg-tab-worker" onclick="setRegRole('worker')">I'm looking for work</button>
+          <button id="reg-tab-employer" onclick="setRegRole('employer')">I'm hiring</button>
+        </div>
+        <div class="field"><label>Full name</label><input type="text" placeholder="Aziza Karimova"></div>
+        <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+        <div class="field"><label>Phone</label><input type="text" placeholder="+998 90 123 45 67"></div>
+        <div class="field"><label>Password</label><input type="password" placeholder="Create a password"></div>
+        <button class="btn btn-primary btn-block" id="reg-submit" onclick="postRegister()">Create worker account</button>
+        <div class="auth-switch">Already have an account? <a onclick="showPage('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ============================================================ WORKER DASHBOARD ============================================================ -->
+<section class="page" id="page-worker-dashboard">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-worker"></aside>
+    <main class="main">
+      <div class="breadcrumb">Worker / Dashboard</div>
+      <div class="page-head">
+        <div><h2>Good morning, Aziza</h2><div class="sub">Here's how your job search is going.</div></div>
+        <button class="btn btn-primary" onclick="showPage('jobs-browse')">Browse jobs →</button>
+      </div>
+ 
+      <div class="grid-3">
+        <div class="card kpi"><div class="n">7</div><div class="l">Applications sent</div><div class="delta up">↑ 2 this week</div></div>
+        <div class="card kpi"><div class="n">3</div><div class="l">Viewed by employer</div><div class="delta flat">steady</div></div>
+        <div class="card kpi"><div class="n">1</div><div class="l">Interview invite</div><div class="delta up">↑ new</div></div>
+      </div>
+ 
+      <div class="card" style="padding:20px; margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:600; margin-bottom:4px;">Resume completeness</div>
+          <div class="hint">Add your education to reach 100% and get better matches.</div>
+          <div class="progress-track" style="width:320px;"><div class="progress-fill" style="width:80%;"></div></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showPage('resume-edit')">Edit resume</button>
+      </div>
+ 
+      <div class="section-title"><h3>Recommended for you</h3><span class="link-more" onclick="showPage('jobs-browse')">See all jobs</span></div>
+      <div id="worker-dash-jobs"></div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ RESUME EDIT ============================================================ -->
+<section class="page" id="page-resume-edit">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-worker-2"></aside>
+    <main class="main">
+      <div class="breadcrumb">Worker / My Resume</div>
+      <div class="page-head">
+        <div><h2>My resume</h2><div class="sub">One resume, attached automatically to every application.</div></div>
+        <button class="btn btn-primary" onclick="toast('Resume saved')">Save changes</button>
+      </div>
+ 
+      <div class="resume-layout">
+        <div class="card form-card">
+          <div class="form-section-title">Desired position</div>
+          <div class="field"><input type="text" value="Product Designer"></div>
+ 
+          <div class="form-section-title">Skills</div>
+          <div class="field"><textarea rows="2">Figma, UI/UX Design, Django templates, Design systems, User research</textarea><div class="hint">Comma-separated — shown as tags on your resume.</div></div>
+ 
+          <div class="form-section-title">Experience</div>
+          <div class="field"><textarea rows="4">Product Designer — Alto Systems (2023–present)
+Designed the redesign of the internal admin dashboard, cut support tickets by 30%.
+ 
+UI Intern — Northwind Studio (2022)
+Supported the design team on two client web projects.</textarea></div>
+ 
+          <div class="form-section-title">Education</div>
+          <div class="field"><textarea rows="2">B.A. in Graphic Design — Tashkent State University of Arts, 2022</textarea></div>
+ 
+          <div class="form-section-title">About me</div>
+          <div class="field"><textarea rows="3">Product designer who likes turning messy workflows into simple screens. Based in Tashkent, open to remote roles.</textarea></div>
+        </div>
+ 
+        <div class="card resume-preview">
+          <div class="rp-head">
+            <h3>Aziza Karimova</h3>
+            <div class="role">Product Designer</div>
+          </div>
+          <div class="rp-block">
+            <div class="rp-h">Skills</div>
+            <div><span class="skill-pill">Figma</span><span class="skill-pill">UI/UX Design</span><span class="skill-pill">Django templates</span><span class="skill-pill">Design systems</span><span class="skill-pill">User research</span></div>
+          </div>
+          <div class="rp-block">
+            <div class="rp-h">Experience</div>
+            <p>Product Designer — Alto Systems (2023–present)
+Designed the redesign of the internal admin dashboard, cut support tickets by 30%.</p>
+          </div>
+          <div class="rp-block">
+            <div class="rp-h">Education</div>
+            <p>B.A. in Graphic Design — Tashkent State University of Arts, 2022</p>
+          </div>
+          <div class="rp-block">
+            <div class="rp-h">About</div>
+            <p>Product designer who likes turning messy workflows into simple screens. Based in Tashkent, open to remote roles.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ BROWSE JOBS ============================================================ -->
+<section class="page" id="page-jobs-browse">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-worker-3"></aside>
+    <main class="main">
+      <div class="breadcrumb">Worker / Browse Jobs</div>
+      <div class="page-head"><div><h2>Browse jobs</h2><div class="sub">3,140 open positions.</div></div></div>
+ 
+      <div class="toolbar">
+        <div class="search-box"><span class="si">⌕</span><input type="text" placeholder="Search job title, keyword…"></div>
+        <select style="width:170px;"><option>All locations</option><option>Remote</option><option>Tashkent</option></select>
+        <button class="btn btn-dark">Search</button>
+      </div>
+ 
+      <div class="browse-layout">
+        <div class="card filters">
+          <h4>Category</h4>
+          <label class="checkline"><input type="checkbox" checked> IT</label>
+          <label class="checkline"><input type="checkbox"> Marketing</label>
+          <label class="checkline"><input type="checkbox"> Design</label>
+          <label class="checkline"><input type="checkbox"> Sales</label>
+          <label class="checkline"><input type="checkbox"> Operations</label>
+          <h4 style="margin-top:18px;">Job type</h4>
+          <label class="checkline"><input type="checkbox" checked> Full-time</label>
+          <label class="checkline"><input type="checkbox"> Part-time</label>
+          <label class="checkline"><input type="checkbox"> Remote</label>
+          <label class="checkline"><input type="checkbox"> Internship</label>
+          <h4 style="margin-top:18px;">Salary range</h4>
+          <input type="text" placeholder="Min" style="margin-bottom:8px;">
+          <input type="text" placeholder="Max">
+        </div>
+        <div id="jobs-list"></div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ JOB DETAIL ============================================================ -->
+<section class="page" id="page-job-detail">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-worker-4"></aside>
+    <main class="main">
+      <div class="breadcrumb">Worker / Browse Jobs / Job Detail</div>
+      <div class="page-head">
+        <div>
+          <span class="chip chip-it">IT</span>
+          <h2 style="margin-top:10px;">Backend Engineer (Django)</h2>
+          <div class="sub">Alto Systems · Remote · Posted 3 days ago</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('apply-modal')">Apply now</button>
+      </div>
+ 
+      <div class="grid-2" style="grid-template-columns:2fr 1fr; align-items:start;">
+        <div class="card" style="padding:24px;">
+          <div class="form-section-title" style="margin-top:0;">Job description</div>
+          <p style="color:var(--ink-soft);">We're looking for a backend engineer to own our Django services layer — API design, database schema decisions, and background jobs. You'll work closely with two product designers and one frontend engineer.</p>
+          <p style="color:var(--ink-soft);">You'll be responsible for the applications pipeline that powers our own hiring flow (yes, we use our own product internally).</p>
+          <div class="form-section-title">Requirements</div>
+          <p style="color:var(--ink-soft);">3+ years with Python/Django, comfortable with PostgreSQL schema design, experience shipping REST APIs.</p>
+        </div>
+        <div class="card" style="padding:22px;">
+          <div class="form-section-title" style="margin-top:0;">Overview</div>
+          <table>
+            <tr><td style="padding-left:0;color:var(--slate);">Salary</td><td style="text-align:right;padding-right:0;" class="mono">$70,000–90,000</td></tr>
+            <tr><td style="padding-left:0;color:var(--slate);">Type</td><td style="text-align:right;padding-right:0;"><span class="job-type-badge">Full-time</span></td></tr>
+            <tr><td style="padding-left:0;color:var(--slate);">Location</td><td style="text-align:right;padding-right:0;">Remote</td></tr>
+            <tr><td style="padding-left:0;color:var(--slate);">Status</td><td style="text-align:right;padding-right:0;" class="job-status-open">Open</td></tr>
+          </table>
+          <div class="form-section-title">Company</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="avatar" style="background:var(--blue-tint); color:var(--blue);">AS</div>
+            <div><div style="font-weight:600; font-size:14px;">Alto Systems</div><div class="hint">altosystems.io</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ WORKER APPLICATIONS ============================================================ -->
+<section class="page" id="page-worker-applications">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-worker-5"></aside>
+    <main class="main">
+      <div class="breadcrumb">Worker / My Applications</div>
+      <div class="page-head"><div><h2>My applications</h2><div class="sub">Track every job you've applied to.</div></div></div>
+ 
+      <div class="status-legend">
+        <span class="stamp stamp-pending">Pending</span>
+        <span class="stamp stamp-viewed">Viewed</span>
+        <span class="stamp stamp-interview">Interview</span>
+        <span class="stamp stamp-accepted">Accepted</span>
+        <span class="stamp stamp-rejected">Rejected</span>
+      </div>
+ 
+      <div class="card table-card">
+        <table>
+          <thead><tr><th>Job</th><th>Company</th><th>Applied</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="row-title">Backend Engineer (Django)</span><br><span class="row-sub">Full-time · Remote</span></td><td>Alto Systems</td><td class="mono">2026-06-29</td><td><span class="stamp stamp-interview">Interview</span></td></tr>
+            <tr><td><span class="row-title">UI/UX Designer</span><br><span class="row-sub">Full-time · Tashkent</span></td><td>Northwind Studio</td><td class="mono">2026-06-24</td><td><span class="stamp stamp-viewed">Viewed</span></td></tr>
+            <tr><td><span class="row-title">Marketing Coordinator</span><br><span class="row-sub">Part-time · Remote</span></td><td>Fenway Logistics</td><td class="mono">2026-06-20</td><td><span class="stamp stamp-rejected">Rejected</span></td></tr>
+            <tr><td><span class="row-title">Frontend Developer</span><br><span class="row-sub">Internship · Remote</span></td><td>Alto Systems</td><td class="mono">2026-06-18</td><td><span class="stamp stamp-pending">Pending</span></td></tr>
+            <tr><td><span class="row-title">Sales Associate</span><br><span class="row-sub">Full-time · Tashkent</span></td><td>Fenway Logistics</td><td class="mono">2026-06-11</td><td><span class="stamp stamp-accepted">Accepted</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ EMPLOYER DASHBOARD ============================================================ -->
+<section class="page" id="page-employer-dashboard">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / Dashboard</div>
+      <div class="page-head">
+        <div><h2>Welcome back, Alto Systems</h2><div class="sub">Here's what's happening across your postings.</div></div>
+        <button class="btn btn-primary" onclick="showPage('post-job')">+ Post a job</button>
+      </div>
+ 
+      <div class="grid-3">
+        <div class="card kpi"><div class="n">4</div><div class="l">Open postings</div><div class="delta flat">2 closed this month</div></div>
+        <div class="card kpi"><div class="n">38</div><div class="l">Total applicants</div><div class="delta up">↑ 9 this week</div></div>
+        <div class="card kpi"><div class="n">5</div><div class="l">Interviews scheduled</div><div class="delta up">↑ 2 new</div></div>
+      </div>
+ 
+      <div class="section-title"><h3>Your postings</h3><span class="link-more" onclick="showPage('manage-jobs')">Manage all</span></div>
+      <div class="card table-card">
+        <table>
+          <thead><tr><th>Job</th><th>Applicants</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><span class="row-title">Backend Engineer (Django)</span><br><span class="row-sub">IT · Full-time</span></td><td>14</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">View applicants</button></td></tr>
+            <tr><td><span class="row-title">Marketing Coordinator</span><br><span class="row-sub">Marketing · Part-time</span></td><td>9</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">View applicants</button></td></tr>
+            <tr><td><span class="row-title">Warehouse Supervisor</span><br><span class="row-sub">Operations · Full-time</span></td><td>15</td><td class="job-status-closed">Closed</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">View applicants</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ COMPANY PROFILE ============================================================ -->
+<section class="page" id="page-company-profile">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer-2"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / Company Profile</div>
+      <div class="page-head"><div><h2>Company profile</h2><div class="sub">Shown on every job you post.</div></div><button class="btn btn-primary" onclick="toast('Company profile saved')">Save changes</button></div>
+ 
+      <div class="card form-card" style="max-width:640px;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:22px;">
+          <div class="avatar" style="width:56px;height:56px;font-size:18px;background:var(--blue-tint); color:var(--blue);">AS</div>
+          <button class="btn btn-ghost btn-sm">Upload logo</button>
+        </div>
+        <div class="form-section-title" style="margin-top:0;">Company name</div>
+        <div class="field"><input type="text" value="Alto Systems"></div>
+        <div class="form-section-title">Website</div>
+        <div class="field"><input type="text" value="https://altosystems.io"></div>
+        <div class="form-section-title">About the company</div>
+        <div class="field"><textarea rows="5">Alto Systems builds internal tooling for logistics companies across Central Asia. Small team, remote-friendly, five-year track record.</textarea></div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ POST A JOB ============================================================ -->
+<section class="page" id="page-post-job">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer-3"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / Post a Job</div>
+      <div class="page-head"><div><h2>Post a job</h2><div class="sub">This appears in worker search results once published.</div></div></div>
+ 
+      <div class="card form-card" style="max-width:680px;">
+        <div class="form-section-title" style="margin-top:0;">Job title</div>
+        <div class="field"><input type="text" placeholder="e.g. Backend Engineer (Django)"></div>
+ 
+        <div class="field-row">
+          <div class="field"><label>Category</label><select><option>IT</option><option>Marketing</option><option>Design</option><option>Sales</option><option>Operations</option></select></div>
+          <div class="field"><label>Job type</label><select><option>Full-time</option><option>Part-time</option><option>Remote</option><option>Internship</option></select></div>
+        </div>
+ 
+        <div class="field"><label>Location</label><input type="text" placeholder="City or 'Remote'"></div>
+ 
+        <div class="field-row">
+          <div class="field"><label>Salary min</label><input type="number" placeholder="0"></div>
+          <div class="field"><label>Salary max</label><input type="number" placeholder="0"></div>
+        </div>
+ 
+        <div class="field"><label>Description</label><textarea rows="6" placeholder="Responsibilities, requirements, what a good week looks like…"></textarea></div>
+ 
+        <div style="display:flex; gap:10px; margin-top:6px;">
+          <button class="btn btn-primary" onclick="toast('Job posted — now visible to workers'); showPage('manage-jobs')">Publish job</button>
+          <button class="btn btn-ghost" onclick="toast('Draft saved')">Save as draft</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ MANAGE JOBS ============================================================ -->
+<section class="page" id="page-manage-jobs">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer-4"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / My Postings</div>
+      <div class="page-head"><div><h2>My postings</h2><div class="sub">4 open · 2 closed</div></div><button class="btn btn-primary" onclick="showPage('post-job')">+ Post a job</button></div>
+ 
+      <div class="card table-card">
+        <table>
+          <thead><tr><th>Job</th><th>Category</th><th>Applicants</th><th>Posted</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="row-title">Backend Engineer (Django)</td><td><span class="chip chip-it">IT</span></td><td>14</td><td class="mono">2026-06-29</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">Applicants</button></td></tr>
+            <tr><td class="row-title">Marketing Coordinator</td><td><span class="chip chip-marketing">Marketing</span></td><td>9</td><td class="mono">2026-06-22</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">Applicants</button></td></tr>
+            <tr><td class="row-title">Product Designer</td><td><span class="chip chip-design">Design</span></td><td>11</td><td class="mono">2026-06-15</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">Applicants</button></td></tr>
+            <tr><td class="row-title">Sales Associate</td><td><span class="chip chip-sales">Sales</span></td><td>6</td><td class="mono">2026-06-08</td><td class="job-status-open">Open</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">Applicants</button></td></tr>
+            <tr><td class="row-title">Warehouse Supervisor</td><td><span class="chip chip-ops">Operations</span></td><td>15</td><td class="mono">2026-05-30</td><td class="job-status-closed">Closed</td><td><button class="btn btn-ghost btn-sm" onclick="showPage('applicants')">Applicants</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ APPLICANTS ============================================================ -->
+<section class="page" id="page-applicants">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer-5"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / My Postings / Applicants</div>
+      <div class="page-head"><div><h2>Applicants — Backend Engineer (Django)</h2><div class="sub">14 people applied · 3 new since yesterday</div></div></div>
+ 
+      <div class="toolbar">
+        <div class="search-box"><span class="si">⌕</span><input type="text" placeholder="Search applicants…"></div>
+        <select style="width:170px;"><option>All statuses</option><option>Pending</option><option>Viewed</option><option>Interview</option><option>Accepted</option><option>Rejected</option></select>
+      </div>
+ 
+      <div class="card table-card">
+        <div class="app-row" style="border-bottom:1px solid var(--border-soft); cursor:pointer;" onclick="showPage('applicant-detail')">
+          <div class="avatar">AK</div>
+          <div style="flex:1;">
+            <div class="row-title">Aziza Karimova</div>
+            <div class="row-sub">Desired: Backend Engineer · Applied 2026-06-29</div>
+          </div>
+          <span class="stamp stamp-interview">Interview</span>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); showPage('applicant-detail')">Open</button>
+        </div>
+        <div class="app-row" style="border-bottom:1px solid var(--border-soft); cursor:pointer;" onclick="showPage('applicant-detail')">
+          <div class="avatar" style="background:var(--blue-tint); color:var(--blue);">BN</div>
+          <div style="flex:1;">
+            <div class="row-title">Bekzod Nazarov</div>
+            <div class="row-sub">Desired: Software Engineer · Applied 2026-06-28</div>
+          </div>
+          <span class="stamp stamp-viewed">Viewed</span>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); showPage('applicant-detail')">Open</button>
+        </div>
+        <div class="app-row" style="border-bottom:1px solid var(--border-soft); cursor:pointer;" onclick="showPage('applicant-detail')">
+          <div class="avatar" style="background:var(--success-tint); color:var(--success);">DM</div>
+          <div style="flex:1;">
+            <div class="row-title">Dilnoza Mirzayeva</div>
+            <div class="row-sub">Desired: Backend Developer · Applied 2026-06-27</div>
+          </div>
+          <span class="stamp stamp-pending">Pending</span>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); showPage('applicant-detail')">Open</button>
+        </div>
+        <div class="app-row" style="cursor:pointer;" onclick="showPage('applicant-detail')">
+          <div class="avatar" style="background:var(--danger-tint); color:var(--danger);">JT</div>
+          <div style="flex:1;">
+            <div class="row-title">Jasur Tashkentov</div>
+            <div class="row-sub">Desired: Python Developer · Applied 2026-06-25</div>
+          </div>
+          <span class="stamp stamp-rejected">Rejected</span>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); showPage('applicant-detail')">Open</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ APPLICANT DETAIL / INTERVIEW ============================================================ -->
+<section class="page" id="page-applicant-detail">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar-employer-6"></aside>
+    <main class="main">
+      <div class="breadcrumb">Employer / Applicants / Aziza Karimova</div>
+      <div class="page-head">
+        <div style="display:flex; gap:14px; align-items:center;">
+          <div class="avatar" style="width:48px;height:48px;font-size:16px;">AK</div>
+          <div><h2>Aziza Karimova</h2><div class="sub">Applied 2026-06-29 · Backend Engineer (Django)</div></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-danger-ghost" onclick="toast('Applicant marked as rejected')">Reject</button>
+          <button class="btn btn-primary" onclick="openModal('interview-modal')">Invite to interview</button>
+        </div>
+      </div>
+ 
+      <div class="grid-2" style="grid-template-columns:2fr 1fr; align-items:start;">
+        <div class="card" style="padding:24px;">
+          <div class="form-section-title" style="margin-top:0;">Cover letter</div>
+          <p style="color:var(--ink-soft);">I've been following Alto Systems' engineering blog for a while — the writeup on your applications pipeline redesign is actually part of why I applied. I'd love to bring that same schema-first thinking to this role.</p>
+ 
+          <div class="form-section-title">Resume — desired position</div>
+          <p style="color:var(--ink-soft); font-weight:600;">Backend Engineer</p>
+ 
+          <div class="form-section-title">Skills</div>
+          <div><span class="skill-pill">Django</span><span class="skill-pill">PostgreSQL</span><span class="skill-pill">REST APIs</span><span class="skill-pill">Docker</span><span class="skill-pill">Celery</span></div>
+ 
+          <div class="form-section-title">Experience</div>
+          <p style="color:var(--ink-soft);">Backend Developer — Sirdaryo Tech (2021–present)
+Built and maintain a Django-based inventory system serving 40+ warehouses.</p>
+ 
+          <div class="form-section-title">Education</div>
+          <p style="color:var(--ink-soft);">B.S. in Computer Science — National University of Uzbekistan, 2021</p>
+        </div>
+ 
+        <div class="card" style="padding:22px;">
+          <div class="form-section-title" style="margin-top:0;">Application status</div>
+          <span class="stamp stamp-interview">Interview</span>
+          <div class="hint" style="margin-top:10px;">Interview invite sent 2026-07-01 for 2026-07-08, 14:00.</div>
+          <div class="form-section-title">Contact</div>
+          <div class="hint">aziza.k@example.com</div>
+          <div class="hint">+998 90 123 45 67</div>
+          <div class="form-section-title">Resume file</div>
+          <button class="btn btn-ghost btn-sm btn-block">View full resume</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+ 
+<!-- ============================================================ MODALS ============================================================ -->
+<div class="modal-overlay" id="apply-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 style="font-size:19px;">Apply to Backend Engineer</h3><div class="hint">Alto Systems</div></div>
+      <span class="modal-close" onclick="closeModal('apply-modal')">×</span>
+    </div>
+    <div class="hint" style="margin-bottom:14px; background:var(--paper); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">Your resume "Product Designer" will be attached automatically.</div>
+    <div class="field"><label>Cover letter (optional)</label><textarea rows="5" placeholder="Tell them why you're a fit…"></textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('apply-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="toast('Application sent'); closeModal('apply-modal')">Submit application</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="interview-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 style="font-size:19px;">Invite to interview</h3><div class="hint">Aziza Karimova · Backend Engineer</div></div>
+      <span class="modal-close" onclick="closeModal('interview-modal')">×</span>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Date</label><input type="date" value="2026-07-08"></div>
+      <div class="field"><label>Time</label><input type="time" value="14:00"></div>
+    </div>
+    <div class="field"><label>Format</label><select><option>Video call</option><option>Phone call</option><option>On-site</option></select></div>
+    <div class="field"><label>Message to applicant</label><textarea rows="4">We'd like to move forward with an interview — does this time work for you?</textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('interview-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="toast('Interview invite sent — status updated to Interview'); closeModal('interview-modal')">Send invite</button>
+    </div>
+  </div>
+</div>
+ 
+<div id="toast" style="display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 20px; border-radius:8px; font-size:13.5px; font-weight:500; z-index:600; box-shadow:var(--shadow);"></div>
+ 
+<script>
+  // -------- job data for reused cards --------
+  const JOBS = [
+    {tab:'it', chip:'it', title:'Backend Engineer (Django)', company:'Alto Systems', loc:'Remote', type:'Full-time', salary:'$70k–90k', cat:'IT'},
+    {tab:'design', chip:'design', title:'UI/UX Designer', company:'Northwind Studio', loc:'Tashkent', type:'Full-time', salary:'$45k–60k', cat:'Design'},
+    {tab:'marketing', chip:'marketing', title:'Marketing Coordinator', company:'Fenway Logistics', loc:'Remote', type:'Part-time', salary:'$2.2k–3k/mo', cat:'Marketing'},
+    {tab:'ops', chip:'ops', title:'Warehouse Operations Lead', company:'Fenway Logistics', loc:'Tashkent', type:'Full-time', salary:'$2.8k–3.4k/mo', cat:'Operations'},
+    {tab:'sales', chip:'sales', title:'Sales Associate', company:'Fenway Logistics', loc:'Tashkent', type:'Full-time', salary:'$1.8k–2.4k/mo', cat:'Sales'},
+  ];
+ 
+  function jobCardHtml(j){
+    return `<div class="job-card" onclick="showPage('job-detail')">
+      <div class="tab tab-${j.tab}"></div>
+      <div class="punch"></div>
+      <div class="job-card-body">
+        <h4>${j.title}</h4>
+        <div class="company">${j.company}</div>
+        <div class="job-card-meta">
+          <span class="chip chip-${j.chip}">${j.cat}</span>
+          <span class="sep">·</span><span>${j.loc}</span>
+          <span class="sep">·</span><span>${j.type}</span>
+        </div>
+      </div>
+      <div class="job-card-right">
+        <div class="salary">${j.salary}</div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); showPage('job-detail')">View</button>
+      </div>
+    </div>`;
+  }
+ 
+  document.getElementById('jobs-list').innerHTML = JOBS.map(jobCardHtml).join('');
+  document.getElementById('worker-dash-jobs').innerHTML = JOBS.slice(0,3).map(jobCardHtml).join('');
+ 
+  // -------- sidebar --------
+  const WORKER_LINKS = [
+    {ic:'▤', label:'Dashboard', page:'worker-dashboard'},
+    {ic:'⌕', label:'Browse Jobs', page:'jobs-browse'},
+    {ic:'✎', label:'My Resume', page:'resume-edit'},
+    {ic:'▧', label:'My Applications', page:'worker-applications'},
+  ];
+  const EMPLOYER_LINKS = [
+    {ic:'▤', label:'Dashboard', page:'employer-dashboard'},
+    {ic:'+', label:'Post a Job', page:'post-job'},
+    {ic:'▧', label:'My Postings', page:'manage-jobs'},
+    {ic:'☺', label:'Applicants', page:'applicants'},
+    {ic:'⚑', label:'Company Profile', page:'company-profile'},
+  ];
+ 
+  function sidebarHtml(role, activePage){
+    const links = role === 'worker' ? WORKER_LINKS : EMPLOYER_LINKS;
+    const name = role === 'worker' ? 'Aziza Karimova' : 'Alto Systems';
+    const mail = role === 'worker' ? 'aziza.k@example.com' : 'hr@altosystems.io';
+    const initials = role === 'worker' ? 'AK' : 'AS';
+    const linksHtml = links.map(l => `<div class="side-link ${l.page===activePage?'active':''}" onclick="showPage('${l.page}')"><span class="ic">${l.ic}</span>${l.label}</div>`).join('');
+    return `
+      <div class="logo"><span class="dot"></span> WorkBoard</div>
+      <div class="side-role">${role} account</div>
+      ${linksHtml}
+      <div class="sidebar-bottom">
+        <div class="user-chip"><div class="avatar">${initials}</div><div><div class="u-name">${name}</div><div class="u-mail">${mail}</div></div></div>
+        <button class="switch-role-btn" onclick="switchRole()">Switch to ${role==='worker'?'employer':'worker'} view</button>
+        <button class="switch-role-btn" onclick="showPage('landing')">Log out</button>
+      </div>`;
+  }
+ 
+  const SIDEBAR_PAGES = {
+    worker: [['sidebar-worker','worker-dashboard'],['sidebar-worker-2','resume-edit'],['sidebar-worker-3','jobs-browse'],['sidebar-worker-4','job-detail'],['sidebar-worker-5','worker-applications']],
+    employer: [['sidebar-employer','employer-dashboard'],['sidebar-employer-2','company-profile'],['sidebar-employer-3','post-job'],['sidebar-employer-4','manage-jobs'],['sidebar-employer-5','applicants'],['sidebar-employer-6','applicant-detail']]
+  };
+  SIDEBAR_PAGES.worker.forEach(([id,pg]) => { document.getElementById(id).innerHTML = sidebarHtml('worker', pg); });
+  SIDEBAR_PAGES.employer.forEach(([id,pg]) => { document.getElementById(id).innerHTML = sidebarHtml('employer', pg); });
+ 
+  // -------- navigation --------
+  let currentRole = 'worker';
+  function showPage(id){
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+    document.getElementById('page-'+id).classList.add('visible');
+    document.querySelectorAll('.flowbar button').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.flowbar button[data-page="${id}"]`);
+    if(btn){ btn.classList.add('active'); if(btn.dataset.role) currentRole = btn.dataset.role; }
+    window.scrollTo(0,0);
+  }
+  function switchRole(){
+    currentRole = currentRole === 'worker' ? 'employer' : 'worker';
+    showPage(currentRole === 'worker' ? 'worker-dashboard' : 'employer-dashboard');
+  }
+  function quickLogin(role){ currentRole = role; showPage(role === 'worker' ? 'worker-dashboard' : 'employer-dashboard'); }
+  function postLogin(){ quickLogin(currentRole); }
+  function setRegRole(role){
+    document.getElementById('reg-tab-worker').classList.toggle('active', role==='worker');
+    document.getElementById('reg-tab-employer').classList.toggle('active', role==='employer');
+    document.getElementById('reg-submit').textContent = role === 'worker' ? 'Create worker account' : 'Create employer account';
+    currentRole = role;
+  }
+  function postRegister(){ showPage(currentRole === 'worker' ? 'resume-edit' : 'company-profile'); }
+ 
+  function openModal(id){ document.getElementById(id).classList.add('visible'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('visible'); }
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(()=>{ t.style.display='none'; }, 2400);
+  }
+ 
+  showPage('landing');
+</script>
+</body>
+</html>
+ 
+

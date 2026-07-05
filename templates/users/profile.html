@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Profile</h1>
+    <h2>{{request.user}}</h2>
+    <a href="{% url 'update-profile' %}">Update Profile</a>
+    <a href="{% url 'delete-account' %}">Delete account</a>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">{{ job.title }}</h3>
+        {% if user == job.employer %}
+            <div>
+                <a href="{% url 'job_update' job.pk %}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger btn-sm">O'chirish</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Ish turi:</strong>
+                    <span class="badge bg-primary">{{ job.get_job_type_display }}</span>
+                </p>
+                <p><strong>Kategoriya:</strong> {{ job.category }}</p>
+                <p><strong>Joylashuv:</strong> 📍 {{ job.location }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Maosh:</strong>
+                    <span class="text-success fw-bold">
+                        {{ job.salary_min }} — {{ job.salary_max }} so'm
+                    </span>
+                </p>
+                <p><strong>Employer:</strong> {{ job.employer.get_full_name }}</p>
+                <p><strong>Sana:</strong> {{ job.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+        </div>
+        <hr>
+        <h5>Tavsif:</h5>
+        <p>{{ job.desc }}</p>
+    </div>
+</div>
+
+<a href="{% url 'job_list' %}" class="btn btn-secondary mt-3">← Orqaga</a>
+{% endblock %}

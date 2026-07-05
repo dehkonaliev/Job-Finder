@@ -1,0 +1,155 @@
+{% extends 'emp-base.html' %}
+
+{% block title %}Vacancies{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">
+                Workspace <span class="mx-1 text-gray-600">/</span> Vacancies
+            </div>
+            <h1 class="font-serif text-3xl md:text-4xl text-white font-semibold leading-tight tracking-tight">
+                Active Vacancies
+            </h1>
+            <p class="text-gray-400 text-sm mt-0.5">Manage all job openings published by your company.</p>
+        </div>
+        
+        {% if user.is_authenticated %}
+            <div>
+                <a href="{% url 'job-create' %}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[#e5b869] to-[#cca055] hover:from-[#f0caa0] hover:to-[#e5b869] text-premium-obsidian font-bold text-sm rounded-lg transition-all duration-200 shadow-lg shadow-premium-gold/10">
+                    <span class="mr-1.5 font-extrabold text-base">+</span> New Vacancy
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Filter Form Panel -->
+    <div class="glass-panel rounded-xl p-5 shadow-xl relative z-10">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <!-- Category Filter Input -->
+            <div class="md:col-span-4 relative">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Category</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm pointer-events-none">🏷️</span>
+                    <input type="text" name="category" 
+                           class="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/5 focus:border-premium-gold/40 focus:bg-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition-all"
+                           placeholder="e.g. IT, Marketing" value="{{ request.GET.category }}">
+                </div>
+            </div>
+
+            <!-- Job Type Filter Dropdown -->
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Job Type</label>
+                <div class="relative">
+                    <select name="job_type" class="w-full px-3 py-2.5 bg-[#0d111d] border border-white/5 focus:border-premium-gold/40 rounded-lg text-sm text-gray-300 focus:outline-none transition-all">
+                        <option value="">All Types</option>
+                        {% for value, label in job_types %}
+                            <option value="{{ value }}" {% if request.GET.job_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Location Filter Input -->
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Location</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm pointer-events-none">📍</span>
+                    <input type="text" name="location" 
+                           class="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/5 focus:border-premium-gold/40 focus:bg-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition-all"
+                           placeholder="e.g. Tashkent" value="{{ request.GET.location }}">
+                </div>
+            </div>
+
+            <!-- Search Submission Trigger -->
+            <div class="md:col-span-2 flex items-end">
+                <button type="submit" class="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-premium-gold/30 text-gray-200 hover:text-white rounded-lg text-sm font-semibold transition-all duration-200">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Jobs Grid -->
+    {% if jobs %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for job in jobs %}
+                <div class="glass-panel glass-panel-hover rounded-xl p-6 flex flex-col justify-between min-h-[260px] relative overflow-hidden group">
+                    <!-- Elegant dynamic background glow visual on cards -->
+                    <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-premium-goldMuted rounded-full opacity-10 group-hover:opacity-25 group-hover:scale-125 transition duration-500 pointer-events-none"></div>
+                    
+                    <div class="space-y-4">
+                        <!-- Card Header -->
+                        <div class="flex justify-between items-start gap-3">
+                            <h3 class="font-serif text-xl font-bold text-white tracking-tight leading-snug group-hover:text-premium-gold transition duration-200">
+                                {{ job.title }}
+                            </h3>
+                            <span class="inline-flex items-center shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-premium-goldMuted text-premium-gold border border-premium-gold/20">
+                                {{ job.get_job_type_display }}
+                            </span>
+                        </div>
+
+                        <!-- Card Metadata -->
+                        <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-400">
+                            <span class="flex items-center gap-1">
+                                <span class="text-premium-gold">📍</span> {{ job.location }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="text-premium-gold">🏷️</span> {{ job.category }}
+                            </span>
+                        </div>
+
+                        <!-- Card Description -->
+                        <p class="text-sm text-gray-400 line-clamp-3 leading-relaxed">
+                            {{ job.desc|truncatewords:15 }}
+                        </p>
+                    </div>
+
+                    <!-- Card Footer Details -->
+                    <div class="pt-5 mt-5 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                        <div class="space-y-0.5">
+                            <div class="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Expected Salary</div>
+                            <p class="font-sans font-bold text-emerald-400 text-sm">
+                                💰 {{ job.salary_min }} — {{ job.salary_max }} soum
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:justify-end gap-3.5 w-full sm:w-auto">
+                            <span class="text-xs text-gray-500 font-mono">
+                                {{ job.created_at|date:"d.m.Y" }}
+                            </span>
+                            <a href="{% url 'job_detail' job.pk %}" class="inline-flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-premium-gold/30 text-gray-200 hover:text-white rounded-lg text-xs font-semibold transition-all duration-150">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State Notice -->
+        <div class="glass-panel rounded-xl p-12 text-center max-w-md mx-auto space-y-4">
+            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-3xl mx-auto">
+                🔍
+            </div>
+            <div>
+                <h3 class="font-serif text-lg font-bold text-white tracking-tight">No vacancies available yet</h3>
+                <p class="text-gray-400 text-xs mt-1 leading-relaxed">
+                    No active job opportunities were found matching your filter criteria at this time.
+                </p>
+            </div>
+            {% if user.is_authenticated %}
+                <div class="pt-2">
+                    <a href="{% url 'job-create' %}" class="inline-flex items-center px-4 py-2 bg-premium-gold text-premium-obsidian font-bold text-xs rounded-lg hover:bg-premium-goldHover transition">
+                        Create New Vacancy
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

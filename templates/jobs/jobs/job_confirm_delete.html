@@ -1,31 +1,68 @@
-{% extends 'base.html' %}
+{% extends 'emp-base.html' %}
 
-{% block title %}Vakansiyani o'chirish{% endblock %}
+{% block title %}Delete Vacancy - {{ job.title|default:"Confirm Deletion" }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card border-danger">
-            <div class="card-header bg-danger text-white">
-                <h5 class="mb-0">Vakansiyani o'chirish</h5>
+<div class="min-h-[60vh] flex items-center justify-center px-4 py-12 relative z-10">
+    
+    <!-- Main Warning Card -->
+    <div class="glass-panel rounded-2xl p-8 max-w-md w-full border border-red-500/20 shadow-2xl relative overflow-hidden group">
+        
+        <!-- Soft Red Ambient Background Glow -->
+        <div class="absolute -right-12 -top-12 w-32 h-32 bg-red-950/25 rounded-full filter blur-2xl group-hover:scale-125 transition duration-500 pointer-events-none"></div>
+        
+        <div class="flex flex-col items-center text-center space-y-5 relative z-10">
+            
+            <!-- Warning SVG Shield Indicator -->
+            <div class="w-16 h-16 bg-red-950/40 border border-red-900/30 rounded-2xl flex items-center justify-center text-red-500 animate-pulse">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
             </div>
-            <div class="card-body">
-                <p>
-                    <strong>{{ job.title }}</strong> vakansiyasini o'chirishni tasdiqlaysizmi?
-                </p>
-                <p class="text-danger">Bu amalni qaytarib bo'lmaydi!</p>
 
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-danger">Ha, o'chirish</button>
-                        <a href="{% url 'job_detail' job.pk %}" class="btn btn-secondary">
-                            Bekor qilish
-                        </a>
-                    </div>
-                </form>
+            <!-- Header Titles -->
+            <div class="space-y-1.5">
+                <h1 class="font-serif text-2xl font-bold text-white tracking-tight">Delete Vacancy?</h1>
+                <p class="text-xs text-premium-gold font-bold uppercase tracking-widest font-mono">Irreversible Action</p>
             </div>
+
+            <!-- Information Body -->
+            <div class="text-sm text-gray-300 leading-relaxed space-y-3 bg-white/5 p-4 rounded-xl border border-white/5 w-full">
+                <p>
+                    Are you sure you want to permanently delete the position:
+                </p>
+                <p class="font-semibold text-white text-base font-serif">
+                    "{{ job.title|default:"Backend Engineer (Django)" }}"
+                </p>
+                <p class="text-xs text-red-400 font-medium">
+                    ⚠️ All associated applicant tracking data, records, and pipelines will be lost forever.
+                </p>
+            </div>
+
+            <!-- Action Controls Form -->
+            <form method="POST" class="w-full pt-2">
+                {% csrf_token %}
+                <div class="flex flex-col sm:flex-row gap-3 w-full">
+                    <!-- Cancel Action -->
+                    <a href="{% url 'job_detail' job.pk %}" class="w-full sm:w-1/2 text-center py-2.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 font-semibold text-xs rounded-lg transition-all duration-150 order-2 sm:order-1">
+                        Cancel
+                    </a>
+                    
+                    <!-- Confirm Destructive Delete Action -->
+                    <button type="submit" class="w-full sm:w-1/2 py-2.5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-extrabold text-xs rounded-lg transition-all duration-150 shadow-lg shadow-red-950/50 order-1 sm:order-2">
+                        Yes, Delete
+                    </button>
+                </div>
+            </form>
+            
         </div>
     </div>
 </div>
 {% endblock %}
+```
+eof
+
+### Summary of Enhancements:
+* **Sleek Guardrails Built:** Added safety indicators such as a warning pulse icon and a styled dynamic disclaimer box that draws immediate user attention.
+* **Unified Styling Structure:** Inherits the elegant gold, dark-charcoal, and obsidian system values from your parent layout.
+* **Perfect Multi-Device Scaling:** Uses full mobile responsiveness to prevent clipping.

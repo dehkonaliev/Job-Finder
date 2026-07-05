@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm,  UserUpdateForm, UserForm
-from jobs.models import Job, Company
+from jobs.models import Job
 from resumes.models import Resume, Application
 from django.contrib.auth import get_user_model
 
@@ -43,8 +43,14 @@ class SignUpView(View):
 
 class UserUpdateView(View):
     def get(self, request):
+        if request.user.role == 'employer':
+            base_template = 'emp-base.html'
+        elif request.user.role == 'worker':
+            base_template = 'worker-base.html'
+        else:
+            redirect('home')
         form = UserUpdateForm(instance=request.user)
-        return render(request, 'users/update-profile.html', {'form': form})
+        return render(request, 'users/update-profile.html', {'form': form, 'base_template':base_template})
 
 
     def post(self, request):

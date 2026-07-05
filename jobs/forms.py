@@ -1,32 +1,6 @@
 # forms.py
 from django import forms
-from .models import Company, Job
-
-
-class CompanyForm(forms.ModelForm):
-    class Meta:
-        model = Company
-        fields = ['name', 'desc', 'website']
-        widgets = {'name': forms.TextInput(attrs={
-                   'class': 'form-control',
-                   'placeholder': 'Kompaniya nomi'
-                                                }),
-                   'desc': forms.Textarea(attrs={
-                   'class': 'form-control',
-                   'placeholder': 'Kompaniya haqida',
-                   'rows': 4
-                                                 }),
-                   'website': forms.URLInput(attrs={
-                   'class': 'form-control',
-                   'placeholder': 'https://example.com'
-                                                  }),
-        }
-        labels = {
-            'name': 'Kompaniya nomi',
-            'desc': 'Tavsif',
-            'website': 'Vebsayt',
-        }
-
+from .models import Job
 
 class JobForm(forms.ModelForm):
     class Meta:
@@ -35,41 +9,41 @@ class JobForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Masalan: Backend Developer'
+                'placeholder': 'e.g. Backend Developer'
             }),
             'desc': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Vakansiya haqida batafsil',
+                'placeholder': 'Detailed job description',
                 'rows': 5
             }),
             'category': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Masalan: IT, Marketing'
+                'placeholder': 'e.g. IT, Marketing'
             }),
             'location': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Masalan: Toshkent'
+                'placeholder': 'e.g. Tashkent'
             }),
             'salary_min': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Minimal maosh'
+                'placeholder': 'Minimum salary'
             }),
             'salary_max': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Maksimal maosh'
+                'placeholder': 'Maximum salary'
             }),
             'job_type': forms.Select(attrs={
                 'class': 'form-select',
             }),
         }
         labels = {
-            'title': 'Lavozim nomi',
-            'desc': 'Tavsif',
-            'category': 'Kategoriya',
-            'location': 'Joylashuv',
-            'salary_min': 'Minimal maosh',
-            'salary_max': 'Maksimal maosh',
-            'job_type': 'Ish turi',
+            'title': 'Job Title',
+            'desc': 'Description',
+            'category': 'Category',
+            'location': 'Location',
+            'salary_min': 'Minimum Salary',
+            'salary_max': 'Maximum Salary',
+            'job_type': 'Job Type',
         }
 
     def clean(self):
@@ -80,6 +54,6 @@ class JobForm(forms.ModelForm):
         if salary_min and salary_max:
             if salary_min > salary_max:
                 raise forms.ValidationError(
-                    'Minimal maosh maksimal maoshdan katta bo\'lishi mumkin emas!'
+                    'Minimum salary cannot be greater than maximum salary!'
                 )
         return cleaned_data

@@ -1,45 +1,124 @@
-{% extends 'base.html' %}
+{% extends 'emp-base.html' %}
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Styling overrides for dynamically rendered Django form fields in dark premium mode */
+    .django-form-field input, 
+    .django-form-field select, 
+    .django-form-field textarea {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.5rem;
+        color: #ffffff;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .django-form-field input:focus, 
+    .django-form-field select:focus, 
+    .django-form-field textarea:focus {
+        outline: none;
+        border-color: rgba(229, 184, 105, 0.45);
+        background-color: rgba(255, 255, 255, 0.07);
+        box-shadow: 0 0 12px rgba(229, 184, 105, 0.05);
+    }
+
+    /* Force background and text color on select lists & options to prevent white-on-white text bugs */
+    .django-form-field select {
+        background-color: #0d111d;
+        color: #e2e8f0;
+    }
+    
+    .django-form-field select option {
+        background-color: #0d111d !important;
+        color: #ffffff !important;
+    }
+
+    .django-form-field textarea {
+        resize: vertical;
+        min-height: 140px;
+    }
+
+    .django-form-field input::placeholder,
+    .django-form-field textarea::placeholder {
+        color: rgba(156, 163, 175, 0.4);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">{{ title }}</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    {% csrf_token %}
-
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                <p class="mb-0">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Saqlash</button>
-                        <a href="{% url 'job_list' %}" class="btn btn-secondary">Bekor qilish</a>
-                    </div>
-                </form>
-            </div>
+<div class="max-w-3xl mx-auto space-y-8">
+    
+    <!-- Breadcrumb Indicator -->
+    <div>
+        <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">
+            Workspace <span class="mx-1 text-gray-600">/</span> Vacancies <span class="mx-1 text-gray-600">/</span> Management
         </div>
+        <h1 class="font-serif text-3xl md:text-4xl text-white font-semibold leading-tight tracking-tight">
+            {{title}}
+        </h1>
+        <p class="text-gray-400 text-sm mt-0.5">Define your operational vacancy configurations with precise criteria.</p>
+    </div>
+
+    <!-- Form Glass Panel Container -->
+    <div class="glass-panel rounded-xl p-6 md:p-8 shadow-2xl relative z-10">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Dynamic Fields Loop -->
+            <div class="space-y-5">
+                {% for field in form %}
+                    <div class="space-y-1.5 django-form-field">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {{ field.label }}
+                        </label>
+                        
+                        <!-- Renders the custom styled form control element -->
+                        <div>
+                            {{ field }}
+                        </div>
+
+                        <!-- Error Messages -->
+                        {% if field.errors %}
+                            <div class="space-y-1 mt-1">
+                                {% for error in field.errors %}
+                                    <p class="text-red-400 text-xs font-medium flex items-center gap-1">
+                                        ⚠️ {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Non-Field Validation Errors -->
+            {% if form.non_field_errors %}
+                <div class="bg-red-950/20 border border-red-900/40 text-red-400 p-4 rounded-lg space-y-1">
+                    {% for error in form.non_field_errors %}
+                        <p class="text-xs font-semibold flex items-center gap-1.5">
+                            💥 {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Form Submissions Action Deck -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-6 border-t border-white/5">
+                <a href="{% url 'my-postings' %}" class="w-full sm:w-auto text-center px-5 py-2.5 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 text-gray-300 font-semibold text-sm rounded-lg transition-all duration-150">
+                    Cancel
+                </a>
+                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#e5b869] to-[#cca055] hover:from-[#f0caa0] hover:to-[#e5b869] text-premium-obsidian font-extrabold text-sm rounded-lg transition-all duration-200 shadow-lg shadow-premium-gold/10">
+                    Save Changes
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

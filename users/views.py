@@ -75,8 +75,10 @@ class UserDeleteView(LoginRequiredMixin, View):
 class ProfileView(View):
     def get(self, request, username):
         user = get_object_or_404(CustomUser, username=username)
-        
-        return render(request, 'users/profile.html')
+        if request.user.role == 'employer':
+            base_template = 'emp-base.html'
+            
+            return render(request, 'users/profile.html', {'base_template': base_template})
 
 
         

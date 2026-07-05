@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WorkBoard - Employer Workspace{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for premium typography: Inter & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        premium: {
+                            obsidian: '#080a10',
+                            charcoal: '#0d111d',
+                            glass: 'rgba(17, 22, 37, 0.65)',
+                            gold: '#e5b869',
+                            goldHover: '#f3cf8c',
+                            goldMuted: 'rgba(229, 184, 105, 0.15)',
+                            border: 'rgba(255, 255, 255, 0.06)',
+                            borderHover: 'rgba(229, 184, 105, 0.3)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Soft, elegant drifting aura background animations */
+        @keyframes drift-slow {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(40px, -60px) scale(1.15); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes drift-reverse {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(-50px, 40px) scale(0.9); }
+            66% { transform: translate(30px, -40px) scale(1.1); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .aura-orb-1 {
+            animation: drift-slow 22s infinite ease-in-out;
+            filter: blur(140px);
+        }
+        .aura-orb-2 {
+            animation: drift-reverse 26s infinite ease-in-out;
+            filter: blur(140px);
+        }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(13, 17, 29, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(229, 184, 105, 0.25);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(229, 184, 105, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom scrollbars for a clean professional dark aesthetic */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(8, 10, 16, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(229, 184, 105, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(229, 184, 105, 0.5);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#080a10] font-sans antialiased text-gray-200 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- Soft Premium Ambient Background Orbs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-purple-900/10 aura-orb-1"></div>
+        <div class="absolute top-1/2 right-[-20%] w-[500px] h-[500px] rounded-full bg-[#e5b869]/5 aura-orb-2"></div>
+        <div class="absolute bottom-[-10%] left-[20%] w-80 h-80 rounded-full bg-indigo-950/20 aura-orb-1"></div>
+    </div>
+
+    <!-- Top Header Navigation Bar -->
+    <header class="bg-[#05060a]/90 py-3.5 px-6 border-b border-white/5 relative z-40 select-none backdrop-blur-md">
+        <div class="max-w-[1600px] mx-auto flex items-center justify-between">
+            <!-- Left Side breadcrumb indicator (matches image_5631df.png context elegantly) -->
+            <div class="hidden lg:flex items-center space-x-2 text-xs text-gray-400">
+                <span class="text-premium-gold font-bold tracking-wider uppercase bg-premium-goldMuted px-2 py-0.5 rounded border border-premium-gold/20 mr-1.5">PROTOTYPE</span>
+                <span class="text-gray-700">/</span>
+                <span>Employer Portal</span>
+                <span class="text-gray-700">/</span>
+                <span class="text-gray-200 font-medium">Workspace Console</span>
+            </div>
+
+            <!-- Mobile brand helper -->
+            <div class="lg:hidden flex items-center space-x-2">
+                <span class="text-premium-gold text-lg">♦</span>
+                <span class="font-serif text-lg font-bold tracking-tight text-white">WorkBoard</span>
+            </div>
+
+            <!-- Right Side: Professional Interactive Profile & Settings Dropdown -->
+            <div class="relative flex items-center space-x-4 ml-auto">
+                <button id="profileDropdownBtn" onclick="toggleDropdown(event)" class="flex items-center space-x-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-premium-gold/30 px-3 py-1.5 rounded-full transition-all duration-200 focus:outline-none">
+                    <div class="w-7 h-7 rounded-full bg-premium-gold text-premium-obsidian font-bold flex items-center justify-center text-xs font-serif shadow-inner border border-premium-gold/30">
+                        AS
+                    </div>
+                    <span class="text-xs font-semibold text-gray-300 hidden sm:inline">Alto Systems</span>
+                    <svg id="dropdownArrow" class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Profile Dropdown Menu Card -->
+                <div id="profileDropdownMenu" class="hidden absolute right-0 top-12 w-60 glass-panel rounded-xl shadow-2xl py-2 z-50 text-sm transform opacity-0 scale-95 transition-all duration-200 border border-white/10">
+                    <div class="px-4 py-2.5 border-b border-white/5 bg-white/5 rounded-t-xl">
+                        <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Logged in as</p>
+                        <p class="text-sm font-bold text-white truncate mt-0.5">Alto Systems HR</p>
+                        <p class="text-xs text-premium-gold font-medium truncate">hr@altosystems.io</p>
+                    </div>
+                    <div class="py-1">
+                        <button onclick="switchTab('profile'); closeDropdown();" class="w-full text-left px-4 py-2 hover:bg-white/5 hover:text-white text-gray-300 transition-colors flex items-center space-x-2.5">
+                            <span class="text-base text-gray-400">⚑</span>
+                            <span>Company Profile</span>
+                        </button>
+                        <button onclick="showToast('Loading workspace settings...'); closeDropdown();" class="w-full text-left px-4 py-2 hover:bg-white/5 hover:text-white text-gray-300 transition-colors flex items-center space-x-2.5">
+                            <span class="text-base text-gray-400">⚙</span>
+                            <span>Settings</span>
+                        </button>
+                        <button onclick="showToast('Redirecting to the secure login portal...'); closeDropdown();" class="w-full text-left px-4 py-2 hover:bg-white/5 hover:text-white text-gray-300 transition-colors flex items-center space-x-2.5">
+                            <span class="text-base text-gray-400">🔑</span>
+                            <span>Sign In / Login</span>
+                        </button>
+                    </div>
+                    <div class="border-t border-white/5 pt-1 mt-1">
+                        <button onclick="showToast('Clearing active user session... Redirecting.'); closeDropdown();" class="w-full text-left px-4 py-2 hover:bg-red-950/20 text-red-400 transition-colors flex items-center space-x-2.5">
+                            <span class="text-base text-red-400">🔌</span>
+                            <span>Log out</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Responsive Menu Toggle (For Small Displays) -->
+                <button id="mobileMenuBtn" class="lg:hidden text-gray-300 focus:outline-none hover:text-white transition" aria-label="Toggle Menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container: Collapsible/Responsive Side Navigation & Panel Layout -->
+    <div class="flex-1 flex flex-col lg:flex-row relative z-10">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-full lg:w-64 bg-[#050609] text-white flex-col shrink-0 border-r border-white/5 z-30 hidden lg:flex">
+            <!-- Brand header block -->
+            <div class="p-6 border-b border-white/5 hidden lg:block">
+                <div class="flex items-center space-x-2">
+                    <span class="text-premium-gold text-lg">♦</span>
+                    <span class="font-serif text-xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">WorkBoard</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Navigation -->
+            <div class="p-4 flex-1 space-y-6">
+                <div>
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-2 block mb-3">Employer Account</span>
+                    <nav class="space-y-1">
+                        <button id="nav-dashboard" onclick="switchTab('dashboard')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 bg-gradient-to-r from-premium-gold to-[#cca055] text-premium-obsidian font-bold shadow-md">
+                            <span class="w-5 text-center text-sm">📇</span>
+                            <span>Dashboard</span>
+                        </button>
+
+                        <button id="nav-post-job" onclick="switchTab('post-job')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:text-white hover:bg-white/5">
+                            <span class="w-5 text-center text-sm">＋</span>
+                            <span>Post a Job</span>
+                        </button>
+
+                        <button id="nav-postings" onclick="switchTab('postings')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:text-white hover:bg-white/5">
+                            <span class="w-5 text-center text-sm">▤</span>
+                            <span>My Postings</span>
+                        </button>
+
+                        <button id="nav-applicants" onclick="switchTab('applicants')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:text-white hover:bg-white/5">
+                            <span class="w-5 text-center text-sm">☺</span>
+                            <span>Applicants</span>
+                        </button>
+
+                        <button id="nav-profile" onclick="switchTab('profile')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:text-white hover:bg-white/5">
+                            <span class="w-5 text-center text-sm">⚑</span>
+                            <span>Company Profile</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Profile Info and Footer Switches -->
+            <div class="p-4 border-t border-white/5 bg-[#030406]/55 backdrop-blur-md">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-premium-gold text-premium-obsidian font-bold flex items-center justify-center text-sm font-serif shadow-inner border border-premium-gold/30">
+                        AS
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate">Alto Systems</p>
+                        <p class="text-xs text-gray-500 truncate">hr@altosystems.io</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="showToast('Switching viewport paradigm to Worker Dashboard...')" class="w-full py-2 px-3 border border-white/10 hover:border-premium-gold/30 hover:bg-white/5 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition text-center block">
+                        Switch to worker view
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area with Custom Dark Premium Aesthetics -->
+        <main class="flex-1 p-6 md:p-8 lg:p-12 overflow-y-auto max-w-[1300px] mx-auto w-full relative z-20">
+            
+            {% block content %}
+            <!-- VIEW: DEFAULT HIGH-FIDELITY DASHBOARD (Direct match to image_5631df.png in Dark Premium) -->
+            <div id="view-dashboard" class="space-y-8 block">
+                
+                <!-- Welcome Section -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">Employer <span class="mx-1 text-gray-600">/</span> Dashboard</div>
+                        <h1 class="font-serif text-3xl md:text-4xl text-white font-semibold leading-tight tracking-tight">Welcome back, Alto Systems</h1>
+                        <p class="text-gray-400 text-sm mt-0.5">Here's what's happening across your postings.</p>
+                    </div>
+                    <div>
+                        <button onclick="switchTab('post-job')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[#e5b869] to-[#cca055] hover:from-[#f0caa0] hover:to-[#e5b869] text-premium-obsidian font-bold text-sm rounded-lg transition-all duration-200 shadow-lg shadow-premium-gold/10">
+                            <span class="mr-1.5 font-extrabold text-base">+</span> Post a job
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Metric Stats Deck -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Stat 1 -->
+                    <div class="glass-panel rounded-xl p-6 glass-panel-hover relative overflow-hidden group">
+                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-white/5 rounded-full group-hover:scale-125 transition duration-500"></div>
+                        <div class="font-serif text-5xl font-semibold text-white tracking-tight" id="stat-postings">4</div>
+                        <div class="text-[10px] tracking-wider uppercase text-premium-gold font-bold mt-2">Open Postings</div>
+                        <div class="text-xs text-gray-500 mt-2 flex items-center">
+                            <span class="text-red-500 mr-1.5">●</span> 2 closed this month
+                        </div>
+                    </div>
+                    <!-- Stat 2 -->
+                    <div class="glass-panel rounded-xl p-6 glass-panel-hover relative overflow-hidden group">
+                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-white/5 rounded-full group-hover:scale-125 transition duration-500"></div>
+                        <div class="font-serif text-5xl font-semibold text-white tracking-tight">38</div>
+                        <div class="text-[10px] tracking-wider uppercase text-premium-gold font-bold mt-2">Total Applicants</div>
+                        <div class="text-xs text-emerald-500 mt-2 font-medium flex items-center">
+                            <span class="mr-1">↑</span> 9 new applications this week
+                        </div>
+                    </div>
+                    <!-- Stat 3 -->
+                    <div class="glass-panel rounded-xl p-6 glass-panel-hover relative overflow-hidden group">
+                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-white/5 rounded-full group-hover:scale-125 transition duration-500"></div>
+                        <div class="font-serif text-5xl font-semibold text-white tracking-tight">5</div>
+                        <div class="text-[10px] tracking-wider uppercase text-premium-gold font-bold mt-2">Interviews Scheduled</div>
+                        <div class="text-xs text-emerald-500 mt-2 font-medium flex items-center">
+                            <span class="mr-1">↑</span> 2 newly planned
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Data Table -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-serif text-xl font-bold text-white tracking-tight">Your postings</h2>
+                        <button onclick="switchTab('postings')" class="text-xs font-bold text-premium-gold hover:text-premium-goldHover transition tracking-wider uppercase">Manage all</button>
+                    </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden shadow-2xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-white/5 border-b border-white/5 text-[10px] uppercase tracking-widest text-premium-gold font-bold">
+                                        <th class="py-4 px-6">Job</th>
+                                        <th class="py-4 px-6">Applicants</th>
+                                        <th class="py-4 px-6">Status</th>
+                                        <th class="py-4 px-6 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5 text-sm" id="dashboard-table-body">
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="py-5 px-6">
+                                            <div class="font-semibold text-white">Backend Engineer (Django)</div>
+                                            <div class="text-xs text-gray-500 mt-0.5">IT · Full-time</div>
+                                        </td>
+                                        <td class="py-5 px-6 text-gray-300 font-medium">14</td>
+                                        <td class="py-5 px-6">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/30 text-emerald-400 border border-emerald-900/40">Open</span>
+                                        </td>
+                                        <td class="py-5 px-6 text-right">
+                                            <button onclick="viewJobApplicants('Backend Engineer (Django)')" class="inline-flex items-center px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-premium-gold/40 hover:text-white text-gray-300 text-xs font-medium transition">
+                                                View applicants
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="py-5 px-6">
+                                            <div class="font-semibold text-white">Marketing Coordinator</div>
+                                            <div class="text-xs text-gray-500 mt-0.5">Marketing · Part-time</div>
+                                        </td>
+                                        <td class="py-5 px-6 text-gray-300 font-medium">9</td>
+                                        <td class="py-5 px-6">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/30 text-emerald-400 border border-emerald-900/40">Open</span>
+                                        </td>
+                                        <td class="py-5 px-6 text-right">
+                                            <button onclick="viewJobApplicants('Marketing Coordinator')" class="inline-flex items-center px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-premium-gold/40 hover:text-white text-gray-300 text-xs font-medium transition">
+                                                View applicants
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="py-5 px-6">
+                                            <div class="font-semibold text-white">Warehouse Supervisor</div>
+                                            <div class="text-xs text-gray-500 mt-0.5">Operations · Full-time</div>
+                                        </td>
+                                        <td class="py-5 px-6 text-gray-300 font-medium">15</td>
+                                        <td class="py-5 px-6">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-950/30 text-red-400 border border-red-900/40">Closed</span>
+                                        </td>
+                                        <td class="py-5 px-6 text-right">
+                                            <button onclick="viewJobApplicants('Warehouse Supervisor')" class="inline-flex items-center px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-premium-gold/40 hover:text-white text-gray-300 text-xs font-medium transition">
+                                                View applicants
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reference Context Card -->
+                <div class="bg-premium-goldMuted/20 rounded-xl p-5 border border-premium-gold/10 flex items-start space-x-3.5 backdrop-blur-md">
+                    <span class="text-premium-gold text-lg">✨</span>
+                    <div class="text-xs text-[#ebd8b6] leading-relaxed">
+                        <strong>Developer Context:</strong> This base interface maintains exact structural integrity from <span class="font-semibold">image_5631df.png</span>, modified specifically for optimal integration with Django templating mechanisms. Incorporates absolute dark premium layout specs with top bar dropdown components.
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CREATE NEW POSTING -->
+            <div id="view-post-job" class="space-y-8 hidden">
+                <div>
+                    <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">Employer <span class="mx-1 text-gray-600">/</span> Create Position</div>
+                    <h1 class="font-serif text-3xl text-white font-semibold leading-tight">Create a New Job Listing</h1>
+                    <p class="text-gray-400 text-sm mt-0.5">Publish listings targeting top-tier technical talents.</p>
+                </div>
+
+                <div class="glass-panel rounded-xl p-6 md:p-8 shadow-2xl">
+                    <form id="jobForm" onsubmit="handlePostJob(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Job Title</label>
+                                <input id="job-title" type="text" required placeholder="e.g. Lead Django Engineer" class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Department</label>
+                                <select id="job-department" class="w-full px-4 py-3 bg-[#111625] border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold text-gray-300 text-sm transition-all">
+                                    <option value="IT">IT & Engineering</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="Design">Design</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Employment Type</label>
+                                <select id="job-type" class="w-full px-4 py-3 bg-[#111625] border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold text-gray-300 text-sm transition-all">
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Compensation Metrics (Annual)</label>
+                                <input id="job-salary" type="text" placeholder="e.g. $140,000 - $180,000 / yr" class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Role Requirements & Description</label>
+                            <textarea id="job-desc" rows="6" required placeholder="Outline core deliverables, architectural dependencies, and tech stacks required..." class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all"></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-4 pt-4 border-t border-white/5">
+                            <button type="button" onclick="switchTab('dashboard')" class="px-5 py-2.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 font-medium text-sm rounded-lg transition-all">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-premium-gold to-[#cca055] hover:from-[#f0caa0] hover:to-[#e5b869] text-premium-obsidian font-bold text-sm rounded-lg transition-all duration-200 shadow-md">
+                                Publish Position
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW: LISTING ARCHIVES -->
+            <div id="view-postings" class="space-y-8 hidden">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">Employer <span class="mx-1 text-gray-600">/</span> Vacancies</div>
+                        <h1 class="font-serif text-3xl text-white font-semibold leading-tight">Job Postings</h1>
+                        <p class="text-gray-400 text-sm mt-0.5">Control active hiring statuses across active listings.</p>
+                    </div>
+                    <button onclick="switchTab('post-job')" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-premium-gold to-[#cca055] text-premium-obsidian font-bold text-sm rounded-lg transition-all shadow-md">
+                        + Create Listing
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-xl overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/5 border-b border-white/5 text-[10px] uppercase tracking-widest text-premium-gold font-bold">
+                                    <th class="py-4 px-6">Position</th>
+                                    <th class="py-4 px-6">Metrics</th>
+                                    <th class="py-4 px-6">Date Listed</th>
+                                    <th class="py-4 px-6">Status</th>
+                                    <th class="py-4 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postings-table-body" class="divide-y divide-white/5 text-sm">
+                                <!-- Dynamic listings pre-rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ACTIVE APPLICANTS -->
+            <div id="view-applicants" class="space-y-8 hidden">
+                <div>
+                    <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">Employer <span class="mx-1 text-gray-600">/</span> Candidates</div>
+                    <div class="flex items-center justify-between">
+                        <h1 class="font-serif text-3xl text-white font-semibold leading-tight">Incoming Applicants</h1>
+                        <div class="text-xs text-gray-400 bg-white/5 border border-white/5 px-2.5 py-1 rounded" id="applicant-filter-indicator">Showing all candidates</div>
+                    </div>
+                </div>
+
+                <!-- Custom Grid Filter Panel -->
+                <div class="flex flex-wrap items-center justify-between gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Filter by Job:</span>
+                        <select id="applicantJobFilter" onchange="filterApplicants()" class="text-xs bg-[#111625] border border-white/5 rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-premium-gold">
+                            <option value="all">All Postings</option>
+                            <option value="Backend Engineer (Django)">Backend Engineer (Django)</option>
+                            <option value="Marketing Coordinator">Marketing Coordinator</option>
+                            <option value="Warehouse Supervisor">Warehouse Supervisor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Candidates Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="applicants-list-grid">
+                    <!-- Card 1 -->
+                    <div class="glass-panel rounded-xl p-5 space-y-4 glass-panel-hover" data-job="Backend Engineer (Django)">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold text-white text-base">Marcus Thorne</h3>
+                                <p class="text-xs text-premium-gold font-medium">Applied: Backend Engineer (Django)</p>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-950/40 text-amber-400 border border-amber-900/40">Interviewing</span>
+                        </div>
+                        <p class="text-xs text-gray-400 line-clamp-2">
+                            A Django developer with 4 years in fast-paced workspace environments. Custom PostgreSQL architecture optimizer and query designer.
+                        </p>
+                        <div class="pt-3 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">m.thorne@example.com</span>
+                            <div class="space-x-1">
+                                <button onclick="showToast('Initiating interview workflow...')" class="px-2.5 py-1 bg-premium-gold text-premium-obsidian font-bold rounded text-xs hover:bg-premium-goldHover transition">
+                                    Schedule
+                                </button>
+                                <button onclick="showToast('Fetching Marcus Thorne Portfolio records...')" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded text-xs transition border border-white/5">
+                                    Resume
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="glass-panel rounded-xl p-5 space-y-4 glass-panel-hover" data-job="Backend Engineer (Django)">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold text-white text-base">Emily Zhao</h3>
+                                <p class="text-xs text-premium-gold font-medium">Applied: Backend Engineer (Django)</p>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-950/40 text-blue-400 border border-blue-900/40">New Application</span>
+                        </div>
+                        <p class="text-xs text-gray-400 line-clamp-2">
+                            Excellent academic record in systems engineering. Contributes directly to microservice infrastructure designs.
+                        </p>
+                        <div class="pt-3 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">emily.z@example.com</span>
+                            <div class="space-x-1">
+                                <button onclick="showToast('Scheduling applicant Emily...')" class="px-2.5 py-1 bg-premium-gold text-premium-obsidian font-bold rounded text-xs hover:bg-premium-goldHover transition">
+                                    Schedule
+                                </button>
+                                <button onclick="showToast('Fetching Candidate Resume asset...')" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded text-xs transition border border-white/5">
+                                    Resume
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: PROFILE SETUP -->
+            <div id="view-profile" class="space-y-8 hidden">
+                <div>
+                    <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">Employer <span class="mx-1 text-gray-600">/</span> Enterprise Settings</div>
+                    <h1 class="font-serif text-3xl text-white font-semibold leading-tight">Company Profile</h1>
+                    <p class="text-gray-400 text-sm mt-0.5">Control company presentation criteria visible on global vacancies.</p>
+                </div>
+
+                <div class="glass-panel rounded-xl p-6 md:p-8 shadow-2xl">
+                    <form onsubmit="handleSaveProfile(event)" class="space-y-6">
+                        <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6 pb-6 border-b border-white/5">
+                            <div class="w-16 h-16 rounded-full bg-premium-gold text-premium-obsidian font-bold flex items-center justify-center text-xl font-serif">
+                                AS
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white text-sm">Enterprise Brand Icon</h3>
+                                <p class="text-xs text-gray-500 mb-2">Display assets beside job offerings.</p>
+                                <button type="button" onclick="showToast('Media assets browser system initiated (Mock)')" class="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 rounded-md text-xs font-semibold transition">
+                                    Change Image
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Company Name</label>
+                                <input id="comp-name" type="text" value="Alto Systems" class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Headquarters Location</label>
+                                <input id="comp-hq" type="text" value="San Francisco, CA" class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Organization Overview</label>
+                            <textarea id="comp-about" rows="4" class="w-full px-4 py-3 bg-white/5 border border-white/5 rounded-lg focus:outline-none focus:border-premium-gold focus:bg-white/10 text-white text-sm transition-all">Alto Systems develops modern backend pipeline components, enterprise database layers, and responsive visual interfaces for high-scale global infrastructures.</textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-4 pt-4 border-t border-white/5">
+                            <button type="button" onclick="switchTab('dashboard')" class="px-5 py-2.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 font-medium text-sm rounded-lg transition-all">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-premium-gold to-[#cca055] hover:from-[#f0caa0] hover:to-[#e5b869] text-premium-obsidian font-bold text-sm rounded-lg transition-all duration-200 shadow-md">
+                                Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endblock content %}
+
+        </main>
+    </div>
+
+    <!-- Mobile Navigation Menu Drawer Overlay -->
+    <div id="mobileMenu" class="fixed inset-0 bg-[#06080e]/95 backdrop-blur-md z-50 transform translate-x-full transition-transform duration-300 lg:hidden flex flex-col">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#040509]">
+            <div class="flex items-center space-x-2">
+                <span class="text-premium-gold text-lg">♦</span>
+                <span class="font-serif text-lg font-bold text-white tracking-tight">WorkBoard</span>
+            </div>
+            <button id="mobileMenuClose" class="text-gray-400 hover:text-white focus:outline-none" aria-label="Close Menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <nav class="space-y-3">
+                <button onclick="switchTab('dashboard'); closeMobileMenu();" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white hover:bg-white/5 transition">
+                    Dashboard
+                </button>
+                <button onclick="switchTab('post-job'); closeMobileMenu();" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white hover:bg-white/5 transition">
+                    Post a Job
+                </button>
+                <button onclick="switchTab('postings'); closeMobileMenu();" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white hover:bg-white/5 transition">
+                    My Postings
+                </button>
+                <button onclick="switchTab('applicants'); closeMobileMenu();" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white hover:bg-white/5 transition">
+                    Applicants
+                </button>
+                <button onclick="switchTab('profile'); closeMobileMenu();" class="w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white hover:bg-white/5 transition">
+                    Company Profile
+                </button>
+            </nav>
+        </div>
+        <div class="p-6 border-t border-white/5 bg-[#030406]">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 rounded-full bg-premium-gold text-premium-obsidian font-bold flex items-center justify-center text-sm font-serif">
+                    AS
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-white">Alto Systems</p>
+                    <p class="text-xs text-gray-500">hr@altosystems.io</p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <button onclick="showToast('Loading workspace viewport alternative...'); closeMobileMenu();" class="w-full py-2.5 px-4 border border-white/10 rounded-lg text-xs font-medium text-gray-300 text-center block hover:bg-white/5">
+                    Switch to worker view
+                </button>
+                <button onclick="showToast('Terminating current user session...'); closeMobileMenu();" class="w-full py-2.5 px-4 border border-red-950/40 rounded-lg text-xs font-medium text-red-400 text-center block hover:bg-red-950/20">
+                    Log out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom interactive notification toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-[#0c101b] text-white px-5 py-3.5 rounded-xl shadow-2xl border border-white/5 flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <span class="text-premium-gold" id="toast-icon">✓</span>
+        <span class="text-sm font-medium text-gray-200" id="toast-message">Workspace configuration parameters adjusted!</span>
+    </div>
+
+    <!-- Dynamic JavaScript Interactions and Django Compatibility Script -->
+    <script>
+        // Core interactive local model representing backend parameters
+        const state = {
+            currentTab: 'dashboard',
+            postings: [
+                { id: 1, title: 'Backend Engineer (Django)', department: 'IT', type: 'Full-time', applicants: 14, date: 'Oct 12, 2025', status: 'Open' },
+                { id: 2, title: 'Marketing Coordinator', department: 'Marketing', type: 'Part-time', applicants: 9, date: 'Oct 05, 2025', status: 'Open' },
+                { id: 3, title: 'Warehouse Supervisor', department: 'Operations', type: 'Full-time', applicants: 15, date: 'Sep 24, 2025', status: 'Closed' }
+            ]
+        };
+
+        // Dropdown toggle system functions
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('profileDropdownMenu');
+            const arrow = document.getElementById('dropdownArrow');
+            if (!menu) return;
+
+            const isHidden = menu.classList.contains('hidden');
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                // Allow browser to render layout so transitions trigger smoothly
+                setTimeout(() => {
+                    menu.classList.remove('opacity-0', 'scale-95');
+                    menu.classList.add('opacity-100', 'scale-100');
+                    arrow.classList.add('rotate-180');
+                }, 10);
+            } else {
+                closeDropdown();
+            }
+        }
+
+        function closeDropdown() {
+            const menu = document.getElementById('profileDropdownMenu');
+            const arrow = document.getElementById('dropdownArrow');
+            if (!menu) return;
+
+            menu.classList.remove('opacity-100', 'scale-100');
+            menu.classList.add('opacity-0', 'scale-95');
+            arrow.classList.remove('rotate-180');
+            
+            // Hide element from layout after opacity animation runs complete
+            setTimeout(() => {
+                menu.classList.add('hidden');
+            }, 200);
+        }
+
+        // Global click-out behavior for active dropdown containers
+        window.addEventListener('click', function(event) {
+            const menu = document.getElementById('profileDropdownMenu');
+            const btn = document.getElementById('profileDropdownBtn');
+            if (menu && !menu.contains(event.target) && event.target !== btn && !btn.contains(event.target)) {
+                closeDropdown();
+            }
+        });
+
+        // Switch workspace visualization tabs
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+
+            const views = ['dashboard', 'post-job', 'postings', 'applicants', 'profile'];
+            views.forEach(v => {
+                const element = document.getElementById(`view-${v}`);
+                if (element) {
+                    if (v === tabId) {
+                        element.classList.remove('hidden');
+                        element.classList.add('block');
+                    } else {
+                        element.classList.add('hidden');
+                        element.classList.remove('block');
+                    }
+                }
+            });
+
+            // Adjust navigation highlighting
+            const navItems = ['dashboard', 'post-job', 'postings', 'applicants', 'profile'];
+            navItems.forEach(item => {
+                const navBtn = document.getElementById(`nav-${item}`);
+                if (navBtn) {
+                    if (item === tabId) {
+                        navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 bg-gradient-to-r from-premium-gold to-[#cca055] text-premium-obsidian font-bold shadow-md";
+                    } else {
+                        navBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 text-gray-400 hover:text-white hover:bg-white/5";
+                    }
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Action: Post new job dynamically
+        function handlePostJob(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('job-title').value;
+            const department = document.getElementById('job-department').value;
+            const type = document.getElementById('job-type').value;
+
+            const newJob = {
+                id: Date.now(),
+                title: title,
+                department: department,
+                type: type,
+                applicants: 0,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                status: 'Open'
+            };
+
+            state.postings.unshift(newJob);
+
+            renderPostings();
+            updateStatsCount();
+
+            document.getElementById('jobForm').reset();
+            showToast(`Vacancy "${title}" created successfully!`);
+            switchTab('dashboard');
+        }
+
+        // Render dynamic postings deck
+        function renderPostings() {
+            const tbody = document.getElementById('postings-table-body');
+            const dbody = document.getElementById('dashboard-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (dbody) dbody.innerHTML = '';
+
+            state.postings.forEach(job => {
+                // Populate My Postings
+                const row = document.createElement('tr');
+                row.className = "hover:bg-white/5 transition-colors";
+                row.innerHTML = `
+                    <td class="py-5 px-6">
+                        <div class="font-semibold text-white">${job.title}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">${job.department} · ${job.type}</div>
+                    </td>
+                    <td class="py-5 px-6 text-gray-300">
+                        <span class="font-semibold text-white">${job.applicants}</span> candidates
+                    </td>
+                    <td class="py-5 px-6 text-gray-400 text-xs">${job.date}</td>
+                    <td class="py-5 px-6">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            job.status === 'Open' ? 'bg-emerald-950/30 text-emerald-400 border border-emerald-900/40' : 'bg-red-950/30 text-red-400 border border-red-900/40'
+                        }">${job.status}</span>
+                    </td>
+                    <td class="py-5 px-6 text-right space-x-2">
+                        <button onclick="viewJobApplicants('${job.title}')" class="px-3 py-1.5 bg-white/5 border border-white/10 hover:border-premium-gold/40 text-gray-300 hover:text-white rounded-md text-xs font-medium transition">
+                            View
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+
+                // Populate Dashboard Listings if Open
+                if (dbody && job.status === 'Open') {
+                    const drow = document.createElement('tr');
+                    drow.className = "hover:bg-white/5 transition-colors";
+                    drow.innerHTML = `
+                        <td class="py-5 px-6">
+                            <div class="font-semibold text-white">${job.title}</div>
+                            <div class="text-xs text-gray-500 mt-0.5">${job.department} · ${job.type}</div>
+                        </td>
+                        <td class="py-5 px-6 text-gray-300 font-medium">${job.applicants}</td>
+                        <td class="py-5 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/30 text-emerald-400 border border-emerald-900/40">Open</span>
+                        </td>
+                        <td class="py-5 px-6 text-right">
+                            <button onclick="viewJobApplicants('${job.title}')" class="inline-flex items-center px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-premium-gold/40 hover:text-white text-gray-300 text-xs font-medium transition">
+                                View applicants
+                            </button>
+                        </td>
+                    `;
+                    dbody.appendChild(drow);
+                }
+            });
+        }
+
+        function updateStatsCount() {
+            const openJobsCount = state.postings.filter(j => j.status === 'Open').length;
+            const statElement = document.getElementById('stat-postings');
+            if (statElement) {
+                statElement.textContent = openJobsCount;
+            }
+        }
+
+        function viewJobApplicants(jobTitle) {
+            const filterDropdown = document.getElementById('applicantJobFilter');
+            if (filterDropdown) {
+                filterDropdown.value = jobTitle;
+                filterApplicants();
+            }
+            switchTab('applicants');
+        }
+
+        function filterApplicants() {
+            const dropdown = document.getElementById('applicantJobFilter');
+            const indicator = document.getElementById('applicant-filter-indicator');
+            if (!dropdown) return;
+
+            const selectedJob = dropdown.value;
+            const cards = document.querySelectorAll('#applicants-list-grid > div');
+            
+            cards.forEach(card => {
+                const jobName = card.getAttribute('data-job');
+                if (selectedJob === 'all' || jobName === selectedJob) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (indicator) {
+                indicator.textContent = selectedJob === 'all' ? 'Showing all candidates' : `Filtered: ${selectedJob}`;
+            }
+        }
+
+        function handleSaveProfile(event) {
+            event.preventDefault();
+            const companyName = document.getElementById('comp-name').value;
+            showToast(`Profile changes finalized for ${companyName}!`);
+            switchTab('dashboard');
+        }
+
+        // Responsive modal toasts replacing basic window alert calls
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Menu drawer control systems
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('translate-x-full');
+            });
+        }
+
+        function closeMobileMenu() {
+            if (mobileMenu) {
+                mobileMenu.classList.add('translate-x-full');
+            }
+        }
+
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', closeMobileMenu);
+        }
+
+        // Initialize elements once structure resources load completely
+        window.onload = function() {
+            renderPostings();
+        };
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

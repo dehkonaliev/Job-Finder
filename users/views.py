@@ -37,7 +37,7 @@ class SignUpView(View):
             user.set_password(form.cleaned_data.get('password'))
             user.save()
             login(request, user)
-            return redirect('my-profile')
+            return redirect('my-profile', request.user.username)
         return render(request, 'users/sign-up.html', {'form':form})
 
 

@@ -22,7 +22,6 @@ class LoginForm(forms.Form):
         
         return cleaned_data
 
-
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
@@ -71,13 +70,12 @@ class UserForm(forms.ModelForm):
             raise ValidationError("Elektron manzilingiz kamida 10 ta harfdan iborat bo'lsin")
         return email
 
-    def clean_phone_number(self):
-        phone_number = self.cleaned_data.get("phone_number")
+    def clean_phone(self):
+        phone = self.cleaned_data.get("phone")
 
-        if len(phone_number) < 9:
+        if len(phone) < 9:
             raise ValidationError("Telefon raqamingiz 9 ta raqamdan iborat bo'lsin")
-        return phone_number
-
+        return phone
 
 
 class UserUpdateForm(forms.ModelForm):

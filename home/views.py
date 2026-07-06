@@ -9,4 +9,4 @@ class HomeView(View):
             
             return render(request, 'home.html', {'base_template': base_template})
         else:
-            return redirect('sign-up')
+            return redirect('login')

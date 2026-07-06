@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WorkBoard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        premium: {
+                            obsidian: '#080a10',
+                            charcoal: '#0d111d',
+                            gold: '#d4af37',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #080a10; }
+        .glass-panel { background: rgba(17, 22, 37, 0.9); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="text-white antialiased">
+
+    <main class="min-h-screen flex flex-col items-center justify-center py-12 px-6">
+        <!-- Optional: Logo / Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-serif font-bold text-white">WorkBoard</h1>
+            <p class="text-slate-500 text-sm mt-2">Employer Workspace</p>
+        </div>
+
+        <!-- Dynamic Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

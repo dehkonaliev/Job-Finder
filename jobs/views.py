@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .models import Job
+from django.views import View
+from resumes.models import Application
 from .forms import JobForm
 
 
@@ -28,7 +31,8 @@ def job_list(request):
 
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
-    return render(request, 'jobs/jobs/job_detail.html', {'job': job})
+    applicants = Application.objects.filter(job=job)
+    return render(request, 'jobs/jobs/job_detail.html', {'job': job, 'applicants':applicants})
 
 
 @login_required
@@ -94,3 +98,13 @@ def job_delete(request, pk):
 def my_jobs(request):
     jobs = Job.objects.filter(employer=request.user).order_by('-created_at')
     return render(request, 'jobs/jobs/my_jobs.html', {'jobs': jobs})
+
+
+class ApplicationDetail(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        application = get_object_or_404(Application, pk=pk)
+        if request.user.role == 'worker':
+            base_template = 'worker-base.html'
+        elif request.user.role == 'employer':
+            base_template = 'emp-base.html'
+        return render(request, 'jobs/jobs/application_detail.html', {'application':application, 'base_template':base_template})

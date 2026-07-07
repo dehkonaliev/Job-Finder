@@ -3,9 +3,9 @@
 {% block title %}{{ job.title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-5xl mx-auto space-y-8">
     
-    <!-- Top Breadcrumbs & Page Actions Deck -->
+    <!-- Top Breadcrumbs & Page Actions -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <div class="text-[10px] tracking-widest uppercase text-premium-gold font-bold mb-1">
@@ -17,7 +17,6 @@
             <p class="text-gray-400 text-sm mt-0.5">Published by {{ job.employer.get_full_name|default:"Employer Console" }}</p>
         </div>
 
-        <!-- Authorized Actions (Edit / Delete) -->
         {% if user == job.employer or user.is_authenticated %}
             <div class="flex items-center gap-2.5 shrink-0">
                 <a href="{% url 'job_update' job.pk %}" class="px-4 py-2 bg-amber-950/20 hover:bg-amber-900/30 border border-amber-800/30 text-amber-400 font-semibold text-xs rounded-lg transition-all duration-150">
@@ -30,11 +29,10 @@
         {% endif %}
     </div>
 
-    <!-- Main Content Split Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Left: Core Deliverables & Description -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Job Description -->
             <div class="glass-panel rounded-xl p-6 md:p-8 space-y-6">
                 <div>
                     <h2 class="font-serif text-lg font-bold text-white mb-3">Role Overview & Description</h2>
@@ -44,7 +42,51 @@
                 </div>
             </div>
 
-            <!-- Back navigation links -->
+            <!-- Enhanced Applicants Section -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-serif text-xl font-bold text-white">Incoming Candidates</h2>
+                    <span class="text-xs font-bold text-premium-gold uppercase tracking-widest">{{ applicants|length }} Total</span>
+                </div>
+
+                <div class="grid gap-4">
+                    {% for applicant in applicants %}
+                    <div class="glass-panel p-6 rounded-xl border border-white/5 hover:border-premium-gold/20 transition-all duration-200">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div>
+                                <h3 class="text-white font-semibold text-lg">{{ applicant.worker.first_name }} {{ applicant.worker.last_name }}</h3>
+                                <p class="text-premium-gold text-xs font-medium uppercase tracking-wide mt-0.5">Applied: {{ applicant.applied_at|date:"M d, Y" }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-white/5 text-gray-400 border border-white/10">
+                                {{ applicant.status|default:"Pending Review" }}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-sm">
+                            <div class="bg-black/20 p-3 rounded-lg border border-white/5">
+                                <span class="block text-[9px] uppercase tracking-widest text-gray-500 font-bold mb-1">Desired Position</span>
+                                <span class="text-gray-200">{{ applicant.resume.desired_position|default:"Not specified" }}</span>
+                            </div>
+                            <div class="bg-black/20 p-3 rounded-lg border border-white/5">
+                                <span class="block text-[9px] uppercase tracking-widest text-gray-500 font-bold mb-1">Education</span>
+                                <span class="text-gray-200 truncate">{{ applicant.resume.education|default:"N/A" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex pt-5 items-center justify-between sm:justify-end gap-3.5 w-full sm:w-auto">
+                            <a href="{% url 'app-detail' applicant.pk %}" class="inline-flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-premium-gold/30 text-gray-200 hover:text-white rounded-lg text-xs font-semibold transition-all duration-150">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="glass-panel p-8 text-center text-gray-500 rounded-xl border border-dashed border-white/10">
+                            No candidates have applied for this position yet.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <div class="pt-2">
                 <a href="{% url 'my-postings' %}" class="inline-flex items-center text-xs text-gray-400 hover:text-premium-gold transition duration-150 font-medium">
                     <span class="mr-2 text-sm">←</span> Back to all listings
@@ -52,15 +94,10 @@
             </div>
         </div>
 
-        <!-- Right: Vital Vacancy Parameters & Metrics -->
-        <div class="space-y-6">
+        <div class="space-y-6 lg:col-span-1">
             <div class="glass-panel rounded-xl p-6 space-y-6 relative overflow-hidden group">
-                <!-- Visual Background Accent Glow -->
                 <div class="absolute -right-12 -top-12 w-24 h-24 bg-premium-goldMuted rounded-full opacity-10 pointer-events-none"></div>
-
                 <h3 class="font-serif text-base font-bold text-white border-b border-white/5 pb-3">Specification Panel</h3>
-
-                <!-- Parameters list -->
                 <div class="space-y-4">
                     <div>
                         <span class="block text-[9px] uppercase tracking-wider text-gray-500 font-bold">Employment Type</span>
@@ -68,24 +105,20 @@
                             {{ job.get_job_type_display|default:"Full-Time" }}
                         </span>
                     </div>
-
                     <div>
                         <span class="block text-[9px] uppercase tracking-wider text-gray-500 font-bold">Category Sector</span>
                         <span class="text-sm font-semibold text-gray-200 block mt-0.5">{{ job.category|default:"IT & Infrastructure" }}</span>
                     </div>
-
                     <div>
                         <span class="block text-[9px] uppercase tracking-wider text-gray-500 font-bold">Operational Location</span>
                         <span class="text-sm text-gray-200 block mt-0.5">📍 {{ job.location|default:"Tashkent, UZ" }}</span>
                     </div>
-
                     <div>
                         <span class="block text-[9px] uppercase tracking-wider text-gray-500 font-bold">Estimated Compensation</span>
                         <span class="text-sm font-bold text-emerald-400 block mt-0.5">
                             💰 {{ job.salary_min }} — {{ job.salary_max }} UZS
                         </span>
                     </div>
-
                     <div class="pt-3 border-t border-white/5 flex justify-between text-[11px] text-gray-500 font-mono">
                         <span>Published on:</span>
                         <span>{{ job.created_at|date:"d.m.Y H:i"|default:"06.07.2026" }}</span>
@@ -96,11 +129,3 @@
     </div>
 </div>
 {% endblock %}
-```
-eof
-
-### Summary of Enhancements:
-* **Sleek Layout Upgrade:** Converted the plain table/card view into a beautiful, dual-column visual split (Left: Job Description; Right: Specifications Card) with responsive grid sizing.
-* **Modern UI Badges:** Configured standard tags for location, expected salary, and category parameters utilizing high-contrast background highlights.
-* **Dynamic Action Elements:** Styled edit/delete panels cleanly so they blend right into your premium dashboard without looking overly aggressive.
-* **English Translation:** Translated all metadata and tags into professional, clean English copy.
